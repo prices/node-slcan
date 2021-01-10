@@ -1,0 +1,47 @@
+{
+    "defaultSeverity": "error",
+    "extends": [
+        "tslint:recommended"
+    ],
+    "jsRules": {},
+    "rules": {
+        "no-reference": false,
+        "no-console": false,
+        "no-var-requires": false,
+        "typedef-whitespace": {
+            "options": [
+                {
+                    "call-signature": "nospace",
+                    "index-signature": "nospace",
+                    "parameter": "nospace",
+                    "property-declaration": "nospace",
+                    "variable-declaration": "nospace"
+                },
+                {
+                    "call-signature": "onespace",
+                    "index-signature": "onespace",
+                    "parameter": "onespace",
+                    "property-declaration": "onespace",
+                    "variable-declaration": "onespace"
+                }
+            ]
+      
+        },
+        "variable-name": {
+            "options": [
+                "check-format",
+                "allow-leading-underscore"
+            ]
+        }
+    },
+    "rulesDirectory": [],
+    "linterOptions": {
+        "exclude": [
+            "build/**",
+            "src/contrib.d.ts"
+        ],
+        "include": [
+            "src/**"
+        ]
+    }
+}
