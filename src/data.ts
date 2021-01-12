@@ -32,39 +32,43 @@ export class Data implements packet{
     private readonly idmask = { ext: 0x1FFFFFFF, std: 0x7FF }
 
     constructor(buf: Buffer | packet | string) {
-        const str = this._string(buf);
-        const type = str.slice(0, 1);
-        this.ext = (type === 'R') || (type === 'T');
-        this.rtr = (type === 'R') || (type === 'r');
-        this.error = false;
+        if ((buf instanceof Buffer) || (typeof buf === 'string')) {
+            const str = (buf instanceof Buffer) ? buf.toString() : buf;
+            const type = str.slice(0, 1);
+            this.ext = (type === 'R') || (type === 'T');
+            this.rtr = (type === 'R') || (type === 'r');
+            this.error = false;
 
-        if (this.ext) {
-            this.id = Buffer.from(str.slice(1,9), 'hex').readInt32BE(0) & this.idmask.ext;
-            this.length = Buffer.from('0' + str.slice(9, 10), 'hex').readInt8(0);
-            this.data = Buffer.from(str.slice(10), 'hex');
+            if (this.ext) {
+                this.id = Buffer.from(str.slice(1,9), 'hex').readInt32BE(0) & this.idmask.ext;
+                this.length = Buffer.from('0' + str.slice(9, 10), 'hex').readInt8(0);
+                this.data = Buffer.from(str.slice(10), 'hex');
+            } else {
+                this.id = Buffer.from('0' + str.slice(1,4), 'hex').readInt16BE(0) & this.idmask.std;
+                this.length = Buffer.from('0' + str.slice(4, 5), 'hex').readInt8(0);
+                this.data = Buffer.from(str.slice(5), 'hex');
+            }
+            if (this.rtr) {
+                this.error = this.error || this.data.length !== 0;
+                this.data = Buffer.alloc(0);
+            } else {
+                this.error = this.error || this.data.length !== this.length;
+                this.data = Buffer.concat([this.data, Buffer.alloc(this.length)]).slice(0, this.length);
+            }
         } else {
-            this.id = Buffer.from('0' + str.slice(1,4), 'hex').readInt16BE(0) & this.idmask.std;
-            this.length = Buffer.from('0' + str.slice(4, 5), 'hex').readInt8(0);
-            this.data = Buffer.from(str.slice(5), 'hex');
-        }
-        if (this.rtr) {
-            this.error = this.error || this.data.length !== 0;
-            this.data = Buffer.alloc(0);
-        } else {
-            this.error = this.error || this.data.length !== this.length;
-            this.data = Buffer.concat([this.data, Buffer.alloc(this.length)]).slice(0, this.length);
+            const pkt = buf as packet;
+            this.id = pkt.id;
+            this.data = pkt.data;
+            this.length = pkt.length;
+            this.ext = pkt.ext;
+            this.rtr = pkt.rtr;
+            this.error = pkt.error;
         }
         this.string = this._string(this);
         Object.freeze(this);
     }
 
-    private _string(p: packet | Buffer | string): string {
-        if (typeof p === "string") {
-            return p;
-        }
-        if (p instanceof Buffer) {
-            return p.toString();
-        }
+    private _string(p: packet): string {
         let str = '';
         let buf;
         if (p.rtr) {
