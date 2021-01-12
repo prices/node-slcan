@@ -44,8 +44,10 @@ export class Data implements packet{
         }
         if (this.rtr) {
             this.error = this.error || this.data.length !== 0;
+            this.data = Buffer.alloc(0);
         } else {
             this.error = this.error || this.data.length !== this.length;
+            this.data = Buffer.concat([this.data, Buffer.alloc(this.length)]).slice(0, this.length);
         }
         Object.freeze(this);
     }
