@@ -28,21 +28,22 @@ export class Data implements packet{
     public readonly ext: boolean;
     public readonly rtr: boolean;
     public readonly error: boolean;
-    public readonly string: string;
+    private readonly string: string;
+    private readonly idmask = { ext: 0x1FFFFFFF, std: 0x7FF }
 
-    constructor(buf: Buffer) {
-        const str = buf.toString();
+    constructor(buf: Buffer | packet | string) {
+        const str = this._string(buf);
         const type = str.slice(0, 1);
         this.ext = (type === 'R') || (type === 'T');
         this.rtr = (type === 'R') || (type === 'r');
         this.error = false;
 
         if (this.ext) {
-            this.id = Buffer.from(str.slice(1,9), 'hex').readInt32BE(0) & 0x1FFFFFFF;
+            this.id = Buffer.from(str.slice(1,9), 'hex').readInt32BE(0) & this.idmask.ext;
             this.length = Buffer.from('0' + str.slice(9, 10), 'hex').readInt8(0);
             this.data = Buffer.from(str.slice(10), 'hex');
         } else {
-            this.id = Buffer.from('0' + str.slice(1,4), 'hex').readInt16BE(0) & 0x7FF;
+            this.id = Buffer.from('0' + str.slice(1,4), 'hex').readInt16BE(0) & this.idmask.std;
             this.length = Buffer.from('0' + str.slice(4, 5), 'hex').readInt8(0);
             this.data = Buffer.from(str.slice(5), 'hex');
         }
@@ -53,32 +54,38 @@ export class Data implements packet{
             this.error = this.error || this.data.length !== this.length;
             this.data = Buffer.concat([this.data, Buffer.alloc(this.length)]).slice(0, this.length);
         }
-        this.string = this._string();
+        this.string = this._string(this);
         Object.freeze(this);
     }
 
-    private _string(): string {
+    private _string(p: packet | Buffer | string): string {
+        if (typeof p === "string") {
+            return p;
+        }
+        if (p instanceof Buffer) {
+            return p.toString();
+        }
         let str = '';
         let buf;
-        if (this.rtr) {
-            str += (this.ext) ? 'R' : 'r';
+        if (p.rtr) {
+            str += (p.ext) ? 'R' : 'r';
         } else {
-            str += (this.ext) ? 'T' : 't';
+            str += (p.ext) ? 'T' : 't';
         }
-        if (this.ext) {
+        if (p.ext) {
             buf = Buffer.alloc(4);
-            buf.writeInt32BE(this.id);
+            buf.writeInt32BE(p.id & this.idmask.ext);
             str += buf.toString('hex');
         } else {
             buf = Buffer.alloc(2);
-            buf.writeInt16BE(this.id);
+            buf.writeInt16BE(p.id & this.idmask.std);
             str += buf.toString('hex').slice(-3);
         }
         buf = Buffer.alloc(1);
-        buf.writeInt8(this.length);
+        buf.writeInt8(p.length);
         str += buf.toString('hex').slice(-1);    
-        if (!this.rtr) {
-            str += this.data.toString('hex');
+        if (!p.rtr) {
+            str += p.data.toString('hex');
         }
         return str;
     }

@@ -1,192 +1,260 @@
 
 import * as assert from "assert";
 import * as sinon from "sinon";
-import { Data } from "../src/data";
+import { Data, packet } from "../src/data";
 
 describe(`data`, () => {
     describe("building a standard packet", () => {
         const str = "t12380011223344556677";
-        const d = new Data(Buffer.from(str));
-        it("sets the id properly", () => {
-            assert.strictEqual(
-                d.id,
-                0x123,
-            );
-        });
-        it("sets ext properly", () => {
-            assert.strictEqual(
-                d.ext,
-                false,
-            );
-        });
-        it("sets rtr properly", () => {
-            assert.strictEqual(
-                d.rtr,
-                false,
-            );
-        });
-        it("sets error properly", () => {
-            assert.strictEqual(
-                d.error,
-                false,
-            );
-        });
-        it("sets the length properly", () => {
-            assert.strictEqual(
-                d.length,
-                8,
-            );
-        });
-        it("sets the data properly", () => {
-            assert.deepEqual(
-                d.data,
-                Buffer.from("0011223344556677", "hex"),
-            );
-        });
-        it("returns a string properly", () => {
-            assert.strictEqual(
-                d.toString(),
-                str,
-            );
-        });
+        const pkt: packet = {
+            id: 0x123,
+            ext: false,
+            rtr: false,
+            error: false,
+            length: 8,
+            data: Buffer.from("0011223344556677", "hex"),
+        };
+        const from = [
+            [ "string", str ],
+            [ "buffer", Buffer.from(str) ],
+            [ "packet", pkt ],
+        ];
+        for (const type of from) {
+            describe(`from ${type[0]}`, () => {
+                const d = new Data(type[1]);
+                it("sets the id properly", () => {
+                    assert.strictEqual(
+                        d.id,
+                        pkt.id,
+                    );
+                });
+                it("sets ext properly", () => {
+                    assert.strictEqual(
+                        d.ext,
+                        pkt.ext,
+                    );
+                });
+                it("sets rtr properly", () => {
+                    assert.strictEqual(
+                        d.rtr,
+                        pkt.rtr,
+                    );
+                });
+                it("sets error properly", () => {
+                    assert.strictEqual(
+                        d.error,
+                        pkt.error,
+                    );
+                });
+                it("sets the length properly", () => {
+                    assert.strictEqual(
+                        d.length,
+                        pkt.length,
+                    );
+                });
+                it("sets the data properly", () => {
+                    assert.deepEqual(
+                        d.data,
+                        pkt.data,
+                    );
+                });
+                it("returns a string properly", () => {
+                    assert.strictEqual(
+                        d.toString(),
+                        str,
+                    );
+                });
+            });
+        }
     });
     describe("building a extended packet", () => {
         const str = "T1234567880011223344556677";
-        const d = new Data(Buffer.from(str));
-        it("sets the id properly", () => {
-            assert.strictEqual(
-                d.id,
-                0x12345678,
-            );
-        });
-        it("sets ext properly", () => {
-            assert.strictEqual(
-                d.ext,
-                true,
-            );
-        });
-        it("sets rtr properly", () => {
-            assert.strictEqual(
-                d.rtr,
-                false,
-            );
-        });
-        it("sets error properly", () => {
-            assert.strictEqual(
-                d.error,
-                false,
-            );
-        });
-        it("sets the length properly", () => {
-            assert.strictEqual(
-                d.length,
-                8,
-            );
-        });
-        it("sets the data properly", () => {
-            assert.deepEqual(
-                d.data,
-                Buffer.from("0011223344556677", "hex"),
-            );
-        });
-        it("returns a string properly", () => {
-            assert.strictEqual(
-                d.toString(),
-                str,
-            );
-        });
+        const pkt: packet = {
+            id: 0x12345678,
+            ext: true,
+            rtr: false,
+            error: false,
+            length: 8,
+            data: Buffer.from("0011223344556677", "hex"),
+        };
+        const from = [
+            [ "string", str ],
+            [ "buffer", Buffer.from(str) ],
+            [ "packet", pkt ],
+        ];
+        for (const type of from) {
+            describe(`from ${type[0]}`, () => {
+                const d = new Data(type[1]);
+                it("sets the id properly", () => {
+                    assert.strictEqual(
+                        d.id,
+                        pkt.id,
+                    );
+                });
+                it("sets ext properly", () => {
+                    assert.strictEqual(
+                        d.ext,
+                        pkt.ext,
+                    );
+                });
+                it("sets rtr properly", () => {
+                    assert.strictEqual(
+                        d.rtr,
+                        pkt.rtr,
+                    );
+                });
+                it("sets error properly", () => {
+                    assert.strictEqual(
+                        d.error,
+                        pkt.error,
+                    );
+                });
+                it("sets the length properly", () => {
+                    assert.strictEqual(
+                        d.length,
+                        pkt.length,
+                    );
+                });
+                it("sets the data properly", () => {
+                    assert.deepEqual(
+                        d.data,
+                        pkt.data,
+                    );
+                });
+                it("returns a string properly", () => {
+                    assert.strictEqual(
+                        d.toString(),
+                        str,
+                    );
+                });
+            });
+        }
     });
     describe("building a standard RTR packet", () => {
         const str = "r1238";
-        const d = new Data(Buffer.from(str));
-        it("sets the id properly", () => {
-            assert.strictEqual(
-                d.id,
-                0x123,
-            );
-        });
-        it("sets ext properly", () => {
-            assert.strictEqual(
-                d.ext,
-                false,
-            );
-        });
-        it("sets rtr properly", () => {
-            assert.strictEqual(
-                d.rtr,
-                true,
-            );
-        });
-        it("sets error properly", () => {
-            assert.strictEqual(
-                d.error,
-                false,
-            );
-        });
-        it("sets the length properly", () => {
-            assert.strictEqual(
-                d.length,
-                8,
-            );
-        });
-        it("sets the data properly", () => {
-            assert.deepEqual(
-                d.data,
-                Buffer.alloc(0),
-            );
-        });
-        it("returns a string properly", () => {
-            assert.strictEqual(
-                d.toString(),
-                str,
-            );
-        });
+        const pkt: packet = {
+            id: 0x123,
+            ext: false,
+            rtr: true,
+            error: false,
+            length: 8,
+            data: Buffer.alloc(0),
+        };
+        const from = [
+            [ "string", str ],
+            [ "buffer", Buffer.from(str) ],
+            [ "packet", pkt ],
+        ];
+        for (const type of from) {
+            describe(`from ${type[0]}`, () => {
+                const d = new Data(type[1]);
+                it("sets the id properly", () => {
+                    assert.strictEqual(
+                        d.id,
+                        pkt.id,
+                    );
+                });
+                it("sets ext properly", () => {
+                    assert.strictEqual(
+                        d.ext,
+                        pkt.ext,
+                    );
+                });
+                it("sets rtr properly", () => {
+                    assert.strictEqual(
+                        d.rtr,
+                        pkt.rtr,
+                    );
+                });
+                it("sets error properly", () => {
+                    assert.strictEqual(
+                        d.error,
+                        pkt.error,
+                    );
+                });
+                it("sets the length properly", () => {
+                    assert.strictEqual(
+                        d.length,
+                        pkt.length,
+                    );
+                });
+                it("sets the data properly", () => {
+                    assert.deepEqual(
+                        d.data,
+                        pkt.data,
+                    );
+                });
+                it("returns a string properly", () => {
+                    assert.strictEqual(
+                        d.toString(),
+                        str,
+                    );
+                });
+            });
+        }
     });
     describe("building a extended packet", () => {
         const str = "R123456788";
-        const d = new Data(Buffer.from(str));
-        it("sets the id properly", () => {
-            assert.strictEqual(
-                d.id,
-                0x12345678,
-            );
-        });
-        it("sets ext properly", () => {
-            assert.strictEqual(
-                d.ext,
-                true,
-            );
-        });
-        it("sets rtr properly", () => {
-            assert.strictEqual(
-                d.rtr,
-                true,
-            );
-        });
-        it("sets error properly", () => {
-            assert.strictEqual(
-                d.error,
-                false,
-            );
-        });
-        it("sets the length properly", () => {
-            assert.strictEqual(
-                d.length,
-                8,
-            );
-        });
-        it("sets the data properly", () => {
-            assert.deepEqual(
-                d.data,
-                Buffer.alloc(0),
-            );
-        });
-        it("returns a string properly", () => {
-            assert.strictEqual(
-                d.toString(),
-                str,
-            );
-        });
+        const pkt: packet = {
+            id: 0x12345678,
+            ext: true,
+            rtr: true,
+            error: false,
+            length: 8,
+            data: Buffer.alloc(0),
+        };
+        const from = [
+            [ "string", str ],
+            [ "buffer", Buffer.from(str) ],
+            [ "packet", pkt ],
+        ];
+        for (const type of from) {
+            describe(`from ${type[0]}`, () => {
+                const d = new Data(type[1]);
+                it("sets the id properly", () => {
+                    assert.strictEqual(
+                        d.id,
+                        pkt.id,
+                    );
+                });
+                it("sets ext properly", () => {
+                    assert.strictEqual(
+                        d.ext,
+                        pkt.ext,
+                    );
+                });
+                it("sets rtr properly", () => {
+                    assert.strictEqual(
+                        d.rtr,
+                        pkt.rtr,
+                    );
+                });
+                it("sets error properly", () => {
+                    assert.strictEqual(
+                        d.error,
+                        pkt.error,
+                    );
+                });
+                it("sets the length properly", () => {
+                    assert.strictEqual(
+                        d.length,
+                        pkt.length,
+                    );
+                });
+                it("sets the data properly", () => {
+                    assert.deepEqual(
+                        d.data,
+                        pkt.data,
+                    );
+                });
+                it("returns a string properly", () => {
+                    assert.strictEqual(
+                        d.toString(),
+                        str,
+                    );
+                });
+            });
+        }
     });
 
 
