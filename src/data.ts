@@ -9,6 +9,9 @@
  *
  */
 
+import { strict } from "assert";
+import { stringify } from "querystring";
+
 export interface packet {
     readonly id: number;
     readonly data: Buffer;
@@ -25,6 +28,7 @@ export class Data implements packet{
     public readonly ext: boolean;
     public readonly rtr: boolean;
     public readonly error: boolean;
+    public readonly string: string;
 
     constructor(buf: Buffer) {
         const str = buf.toString();
@@ -49,6 +53,37 @@ export class Data implements packet{
             this.error = this.error || this.data.length !== this.length;
             this.data = Buffer.concat([this.data, Buffer.alloc(this.length)]).slice(0, this.length);
         }
+        this.string = this._string();
         Object.freeze(this);
+    }
+
+    private _string(): string {
+        let str = '';
+        let buf;
+        if (this.rtr) {
+            str += (this.ext) ? 'R' : 'r';
+        } else {
+            str += (this.ext) ? 'T' : 't';
+        }
+        if (this.ext) {
+            buf = Buffer.alloc(4);
+            buf.writeInt32BE(this.id);
+            str += buf.toString('hex');
+        } else {
+            buf = Buffer.alloc(2);
+            buf.writeInt16BE(this.id);
+            str += buf.toString('hex').slice(-3);
+        }
+        buf = Buffer.alloc(1);
+        buf.writeInt8(this.length);
+        str += buf.toString('hex').slice(-1);    
+        if (!this.rtr) {
+            str += this.data.toString('hex');
+        }
+        return str;
+    }
+
+    public toString(): string {
+        return this.string;
     }
 }

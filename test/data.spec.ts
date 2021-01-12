@@ -5,7 +5,8 @@ import { Data } from "../src/data";
 
 describe(`data`, () => {
     describe("building a standard packet", () => {
-        const d = new Data(Buffer.from("t12380011223344556677"));
+        const str = "t12380011223344556677";
+        const d = new Data(Buffer.from(str));
         it("sets the id properly", () => {
             assert.strictEqual(
                 d.id,
@@ -42,9 +43,16 @@ describe(`data`, () => {
                 Buffer.from("0011223344556677", "hex"),
             );
         });
+        it("returns a string properly", () => {
+            assert.strictEqual(
+                d.toString(),
+                str,
+            );
+        });
     });
     describe("building a extended packet", () => {
-        const d = new Data(Buffer.from("T1234567880011223344556677"));
+        const str = "T1234567880011223344556677";
+        const d = new Data(Buffer.from(str));
         it("sets the id properly", () => {
             assert.strictEqual(
                 d.id,
@@ -79,11 +87,18 @@ describe(`data`, () => {
             assert.deepEqual(
                 d.data,
                 Buffer.from("0011223344556677", "hex"),
+            );
+        });
+        it("returns a string properly", () => {
+            assert.strictEqual(
+                d.toString(),
+                str,
             );
         });
     });
     describe("building a standard RTR packet", () => {
-        const d = new Data(Buffer.from("r1238"));
+        const str = "r1238";
+        const d = new Data(Buffer.from(str));
         it("sets the id properly", () => {
             assert.strictEqual(
                 d.id,
@@ -120,9 +135,16 @@ describe(`data`, () => {
                 Buffer.alloc(0),
             );
         });
+        it("returns a string properly", () => {
+            assert.strictEqual(
+                d.toString(),
+                str,
+            );
+        });
     });
     describe("building a extended packet", () => {
-        const d = new Data(Buffer.from("R123456788"));
+        const str = "R123456788";
+        const d = new Data(Buffer.from(str));
         it("sets the id properly", () => {
             assert.strictEqual(
                 d.id,
@@ -157,6 +179,12 @@ describe(`data`, () => {
             assert.deepEqual(
                 d.data,
                 Buffer.alloc(0),
+            );
+        });
+        it("returns a string properly", () => {
+            assert.strictEqual(
+                d.toString(),
+                str,
             );
         });
     });
