@@ -9,10 +9,7 @@
  *
  */
 
-import { strict } from "assert";
-import { stringify } from "querystring";
-
-export interface packet {
+export interface Packet {
     readonly id: number;
     readonly data: Buffer;
     readonly length: number;
@@ -20,8 +17,9 @@ export interface packet {
     readonly rtr: boolean;
     readonly error: boolean;
 }
-
-export class Data implements packet{
+/* eslint-disable no-bitwise */
+/* tslint:disable:no-bitwise */
+export class Data implements Packet{
     public readonly id: number;
     public readonly data: Buffer;
     public readonly length: number;
@@ -31,7 +29,7 @@ export class Data implements packet{
     private readonly string: string;
     private readonly idmask = { ext: 0x1FFFFFFF, std: 0x7FF }
 
-    constructor(buf: Buffer | packet | string) {
+    constructor(buf: Buffer | Packet | string) {
         if ((buf instanceof Buffer) || (typeof buf === 'string')) {
             const str = (buf instanceof Buffer) ? buf.toString() : buf;
             const type = str.slice(0, 1);
@@ -56,7 +54,7 @@ export class Data implements packet{
                 this.data = Buffer.concat([this.data, Buffer.alloc(this.length)]).slice(0, this.length);
             }
         } else {
-            const pkt = buf as packet;
+            const pkt = buf as Packet;
             this.id = pkt.id;
             this.data = pkt.data;
             this.length = pkt.length;
@@ -68,7 +66,7 @@ export class Data implements packet{
         Object.freeze(this);
     }
 
-    private _string(p: packet): string {
+    private _string(p: Packet): string {
         let str = '';
         let buf;
         if (p.rtr) {
@@ -87,7 +85,7 @@ export class Data implements packet{
         }
         buf = Buffer.alloc(1);
         buf.writeInt8(p.length);
-        str += buf.toString('hex').slice(-1);    
+        str += buf.toString('hex').slice(-1);
         if (!p.rtr) {
             str += p.data.toString('hex');
         }

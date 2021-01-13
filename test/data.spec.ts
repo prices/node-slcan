@@ -1,12 +1,12 @@
 
 import * as assert from "assert";
 import * as sinon from "sinon";
-import { Data, packet } from "../src/data";
+import { Data, Packet } from "../src/data";
 
 describe(`data`, () => {
     describe("building a standard packet", () => {
         const str = "t12380011223344556677";
-        const pkt: packet = {
+        const pkt: Packet = {
             id: 0x123,
             ext: false,
             rtr: false,
@@ -69,7 +69,7 @@ describe(`data`, () => {
     });
     describe("building a extended packet", () => {
         const str = "T1234567880011223344556677";
-        const pkt: packet = {
+        const pkt: Packet = {
             id: 0x12345678,
             ext: true,
             rtr: false,
@@ -132,7 +132,7 @@ describe(`data`, () => {
     });
     describe("building a standard RTR packet", () => {
         const str = "r1238";
-        const pkt: packet = {
+        const pkt: Packet = {
             id: 0x123,
             ext: false,
             rtr: true,
@@ -195,7 +195,7 @@ describe(`data`, () => {
     });
     describe("building a extended packet", () => {
         const str = "R123456788";
-        const pkt: packet = {
+        const pkt: Packet = {
             id: 0x12345678,
             ext: true,
             rtr: true,

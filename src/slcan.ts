@@ -10,7 +10,7 @@
 import SerialPort = require('serialport');
 import { Master } from "./master";
 import { Slave } from "./slave";
-import { packet } from "./data";
+import { Packet } from "./data";
 
 export function master(port: string | SerialPort, baud: number = 115200): Master {
     if (typeof port === "string") {
@@ -36,4 +36,4 @@ export function slave(port: string | SerialPort, baud: number = 115200): Slave {
     return new Slave(port);
 }
 
-export { packet };
+export { Packet };
