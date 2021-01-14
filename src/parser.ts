@@ -33,11 +33,11 @@ export class Parser extends Transform {
             if (end > -1) {
                 const c = chunk.slice(0, end);
                 if (this._isData(c)) {
-                    this.push(c.toString());
+                    this.push(c);
                 } else if (this._isReply(c)) {
                     this.emit("reply", (c.length > 0) ? c.toString() : true);
                 } else {
-                    this.emit("request", c.toString());
+                    this.emit("command", c.toString());
                 }
                 chunk = chunk.slice(end + 1);
             }
@@ -60,7 +60,7 @@ export class Parser extends Transform {
         switch (chunk.toString().slice(0, 1)) {
             case 'z':
             case 'Z':
-                return true;
+                return chunk.length === 1;
             case 'F':
             case 'V':
             case 'N':

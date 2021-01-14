@@ -28,7 +28,7 @@ export class Slave {
         this._port = port;
         this._parser = this._port.pipe(new Parser());
         this._parser.on('data', this._data);
-        this._parser.on('request', this._request);
+        this._parser.on('command', this._command);
     }
 
 
@@ -37,8 +37,8 @@ export class Slave {
         /* Stuff */
     }
 
-    protected _request(request: Buffer) {
-        console.log({request: request.toString()});
+    protected _command(command: Buffer) {
+        console.log({command: command.toString()});
         /* Stuff */
     }
 }
