@@ -269,7 +269,7 @@ describe(`data`, () => {
             });
         }
     });
-    describe("building a standard RTR packet", () => {
+    describe("building a standard RTR packet with timestamp", () => {
         const str = "r12381234";
         const pkt: Packet = {
             id: 0x123,
@@ -410,6 +410,27 @@ describe(`data`, () => {
     });
 
 
+    describe("building a standard packet timestamp out of range", () => {
+        const d = new Data(Buffer.from("t12380011223344556677FFFF"));
+        it("sets error properly", () => {
+            assert.strictEqual(
+                d.error,
+                false,
+            );
+        });
+        it("has the correct size data", () => {
+            assert.strictEqual(
+                d.data.length,
+                d.length,
+            );
+        });
+        it("sets the timestamp properly", () => {
+            assert.strictEqual(
+                d.timestamp,
+                undefined,
+            );
+        });
+    });
     describe("building a standard packet too short", () => {
         const d = new Data(Buffer.from("t123800112233445566"));
         it("sets error properly", () => {
@@ -482,6 +503,27 @@ describe(`data`, () => {
             assert.deepStrictEqual(
                 d.data,
                 Buffer.alloc(0),
+            );
+        });
+    });
+    describe("building a standard RTR packet timestamp too big", () => {
+        const d = new Data(Buffer.from("r1238FFFF"));
+        it("sets error properly", () => {
+            assert.strictEqual(
+                d.error,
+                false,
+            );
+        });
+        it("sets the data properly", () => {
+            assert.deepStrictEqual(
+                d.data,
+                Buffer.alloc(0),
+            );
+        });
+        it("sets the timestamp properly", () => {
+            assert.strictEqual(
+                d.timestamp,
+                undefined,
             );
         });
     });

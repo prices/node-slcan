@@ -30,6 +30,7 @@ export class Data implements Packet{
     public readonly timestamp?: number;
     private readonly string: string;
     private readonly idmask = { ext: 0x1FFFFFFF, std: 0x7FF }
+    private readonly timestampmax = 0xEA5F;
 
     constructor(buf: Buffer | Packet | string) {
         if ((buf instanceof Buffer) || (typeof buf === 'string')) {
@@ -40,26 +41,32 @@ export class Data implements Packet{
             this.error = false;
 
             if (this.ext) {
-                this.id = Buffer.from(str.slice(1,9), 'hex').readInt32BE(0) & this.idmask.ext;
+                this.id = Buffer.from(str.slice(1,9), 'hex').readUInt32BE(0) & this.idmask.ext;
                 this.length = Buffer.from('0' + str.slice(9, 10), 'hex').readInt8(0);
                 this.data = Buffer.from(str.slice(10), 'hex');
             } else {
-                this.id = Buffer.from('0' + str.slice(1,4), 'hex').readInt16BE(0) & this.idmask.std;
+                this.id = Buffer.from('0' + str.slice(1,4), 'hex').readUInt16BE(0) & this.idmask.std;
                 this.length = Buffer.from('0' + str.slice(4, 5), 'hex').readInt8(0);
                 this.data = Buffer.from(str.slice(5), 'hex');
             }
 
             if (this.rtr) {
                 if (this.data.length === 2) {
-                    this.timestamp = this.data.readInt16BE(0);
+                    this.timestamp = this.data.readUInt16BE(0);
                     this.data = Buffer.alloc(0);
+                    if (this.timestamp > this.timestampmax) {
+                        this.timestamp = undefined;
+                    }
                 }
                 this.error = this.error || this.data.length !== 0;
                 this.data = Buffer.alloc(0);
             } else {
                 if (this.data.length === (this.length + 2)) {
-                    this.timestamp = this.data.readInt16BE(this.length);
+                    this.timestamp = this.data.readUInt16BE(this.length);
                     this.data = this.data.slice(0, this.length);
+                    if (this.timestamp > this.timestampmax) {
+                        this.timestamp = undefined;
+                    }
                 }
                 this.error = this.error || this.data.length !== this.length;
                 this.data = Buffer.concat([this.data, Buffer.alloc(this.length)]).slice(0, this.length);
@@ -88,11 +95,11 @@ export class Data implements Packet{
         }
         if (p.ext) {
             buf = Buffer.alloc(4);
-            buf.writeInt32BE(p.id & this.idmask.ext);
+            buf.writeUInt32BE(p.id & this.idmask.ext);
             str += buf.toString('hex');
         } else {
             buf = Buffer.alloc(2);
-            buf.writeInt16BE(p.id & this.idmask.std);
+            buf.writeUInt16BE(p.id & this.idmask.std);
             str += buf.toString('hex').slice(-3);
         }
         buf = Buffer.alloc(1);
@@ -101,9 +108,9 @@ export class Data implements Packet{
         if (!p.rtr) {
             str += p.data.toString('hex');
         }
-        if ((p.timestamp !== undefined) && (p.timestamp <= 0xEA5f)) {
+        if ((p.timestamp !== undefined) && (p.timestamp <= this.timestampmax)) {
             buf = Buffer.alloc(2);
-            buf.writeInt16BE(p.timestamp);
+            buf.writeUInt16BE(p.timestamp);
             str += buf.toString('hex');
         }
         return str;
