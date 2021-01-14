@@ -53,7 +53,7 @@ describe(`data`, () => {
                     );
                 });
                 it("sets the data properly", () => {
-                    assert.deepEqual(
+                    assert.deepStrictEqual(
                         d.data,
                         pkt.data,
                     );
@@ -116,7 +116,77 @@ describe(`data`, () => {
                     );
                 });
                 it("sets the data properly", () => {
-                    assert.deepEqual(
+                    assert.deepStrictEqual(
+                        d.data,
+                        pkt.data,
+                    );
+                });
+                it("sets the timestamp properly", () => {
+                    assert.strictEqual(
+                        d.timestamp,
+                        pkt.timestamp,
+                    );
+                });
+                it("returns a string properly", () => {
+                    assert.strictEqual(
+                        d.toString(),
+                        str,
+                    );
+                });
+            });
+        }
+    });
+    describe("building a standard packet with a timestamp", () => {
+        const str = "t123800112233445566771234";
+        const pkt: Packet = {
+            id: 0x123,
+            ext: false,
+            rtr: false,
+            error: false,
+            length: 8,
+            data: Buffer.from("0011223344556677", "hex"),
+            timestamp: 0x1234,
+        };
+        const from = [
+            [ "string", str ],
+            [ "buffer", Buffer.from(str) ],
+            [ "packet", pkt ],
+        ];
+        for (const type of from) {
+            describe(`from ${type[0]}`, () => {
+                const d = new Data(type[1]);
+                it("sets the id properly", () => {
+                    assert.strictEqual(
+                        d.id,
+                        pkt.id,
+                    );
+                });
+                it("sets ext properly", () => {
+                    assert.strictEqual(
+                        d.ext,
+                        pkt.ext,
+                    );
+                });
+                it("sets rtr properly", () => {
+                    assert.strictEqual(
+                        d.rtr,
+                        pkt.rtr,
+                    );
+                });
+                it("sets error properly", () => {
+                    assert.strictEqual(
+                        d.error,
+                        pkt.error,
+                    );
+                });
+                it("sets the length properly", () => {
+                    assert.strictEqual(
+                        d.length,
+                        pkt.length,
+                    );
+                });
+                it("sets the data properly", () => {
+                    assert.deepStrictEqual(
                         d.data,
                         pkt.data,
                     );
@@ -179,9 +249,85 @@ describe(`data`, () => {
                     );
                 });
                 it("sets the data properly", () => {
-                    assert.deepEqual(
+                    assert.deepStrictEqual(
                         d.data,
                         pkt.data,
+                    );
+                });
+                it("sets the timestamp properly", () => {
+                    assert.strictEqual(
+                        d.timestamp,
+                        pkt.timestamp,
+                    );
+                });
+                it("returns a string properly", () => {
+                    assert.strictEqual(
+                        d.toString(),
+                        str,
+                    );
+                });
+            });
+        }
+    });
+    describe("building a standard RTR packet", () => {
+        const str = "r12381234";
+        const pkt: Packet = {
+            id: 0x123,
+            ext: false,
+            rtr: true,
+            error: false,
+            length: 8,
+            data: Buffer.alloc(0),
+            timestamp: 0x1234,
+        };
+        const from = [
+            [ "string", str ],
+            [ "buffer", Buffer.from(str) ],
+            [ "packet", pkt ],
+        ];
+        for (const type of from) {
+            describe(`from ${type[0]}`, () => {
+                const d = new Data(type[1]);
+                it("sets the id properly", () => {
+                    assert.strictEqual(
+                        d.id,
+                        pkt.id,
+                    );
+                });
+                it("sets ext properly", () => {
+                    assert.strictEqual(
+                        d.ext,
+                        pkt.ext,
+                    );
+                });
+                it("sets rtr properly", () => {
+                    assert.strictEqual(
+                        d.rtr,
+                        pkt.rtr,
+                    );
+                });
+                it("sets error properly", () => {
+                    assert.strictEqual(
+                        d.error,
+                        pkt.error,
+                    );
+                });
+                it("sets the length properly", () => {
+                    assert.strictEqual(
+                        d.length,
+                        pkt.length,
+                    );
+                });
+                it("sets the data properly", () => {
+                    assert.deepStrictEqual(
+                        d.data,
+                        pkt.data,
+                    );
+                });
+                it("sets the timestamp properly", () => {
+                    assert.strictEqual(
+                        d.timestamp,
+                        pkt.timestamp,
                     );
                 });
                 it("returns a string properly", () => {
@@ -242,9 +388,15 @@ describe(`data`, () => {
                     );
                 });
                 it("sets the data properly", () => {
-                    assert.deepEqual(
+                    assert.deepStrictEqual(
                         d.data,
                         pkt.data,
+                    );
+                });
+                it("sets the timestamp properly", () => {
+                    assert.strictEqual(
+                        d.timestamp,
+                        pkt.timestamp,
                     );
                 });
                 it("returns a string properly", () => {
@@ -327,7 +479,7 @@ describe(`data`, () => {
             );
         });
         it("sets the data properly", () => {
-            assert.deepEqual(
+            assert.deepStrictEqual(
                 d.data,
                 Buffer.alloc(0),
             );
@@ -342,7 +494,7 @@ describe(`data`, () => {
             );
         });
         it("sets the data properly", () => {
-            assert.deepEqual(
+            assert.deepStrictEqual(
                 d.data,
                 Buffer.alloc(0),
             );

@@ -16,6 +16,7 @@ export interface Packet {
     readonly ext: boolean;
     readonly rtr: boolean;
     readonly error: boolean;
+    readonly timestamp?: number;
 }
 /* eslint-disable no-bitwise */
 /* tslint:disable:no-bitwise */
@@ -26,6 +27,7 @@ export class Data implements Packet{
     public readonly ext: boolean;
     public readonly rtr: boolean;
     public readonly error: boolean;
+    public readonly timestamp?: number;
     private readonly string: string;
     private readonly idmask = { ext: 0x1FFFFFFF, std: 0x7FF }
 
@@ -46,10 +48,19 @@ export class Data implements Packet{
                 this.length = Buffer.from('0' + str.slice(4, 5), 'hex').readInt8(0);
                 this.data = Buffer.from(str.slice(5), 'hex');
             }
+
             if (this.rtr) {
+                if (this.data.length === 2) {
+                    this.timestamp = this.data.readInt16BE(0);
+                    this.data = Buffer.alloc(0);
+                }
                 this.error = this.error || this.data.length !== 0;
                 this.data = Buffer.alloc(0);
             } else {
+                if (this.data.length === (this.length + 2)) {
+                    this.timestamp = this.data.readInt16BE(this.length);
+                    this.data = this.data.slice(0, this.length);
+                }
                 this.error = this.error || this.data.length !== this.length;
                 this.data = Buffer.concat([this.data, Buffer.alloc(this.length)]).slice(0, this.length);
             }
@@ -61,6 +72,7 @@ export class Data implements Packet{
             this.ext = pkt.ext;
             this.rtr = pkt.rtr;
             this.error = pkt.error;
+            this.timestamp = pkt.timestamp;
         }
         this.string = this._string(this);
         Object.freeze(this);
@@ -88,6 +100,11 @@ export class Data implements Packet{
         str += buf.toString('hex').slice(-1);
         if (!p.rtr) {
             str += p.data.toString('hex');
+        }
+        if ((p.timestamp !== undefined) && (p.timestamp <= 0xEA5f)) {
+            buf = Buffer.alloc(2);
+            buf.writeInt16BE(p.timestamp);
+            str += buf.toString('hex');
         }
         return str;
     }
