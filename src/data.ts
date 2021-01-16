@@ -20,7 +20,7 @@ export interface Packet {
 }
 /* eslint-disable no-bitwise */
 /* tslint:disable:no-bitwise */
-export class Data implements Packet{
+export class Data implements Packet {
     public readonly id: number;
     public readonly data: Buffer;
     public readonly length: number;
