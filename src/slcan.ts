@@ -44,7 +44,7 @@ export class SlCAN extends EventEmitter {
 
     public send(pkt: Packet) {
         const d = new Data(pkt);
-        this._port.write(d.toString()+'\r');
+        this._port.write(d.toString() + Parser.delimiter);
     }
 
 }

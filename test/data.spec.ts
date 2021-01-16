@@ -4,6 +4,49 @@ import * as sinon from "sinon";
 import { Data, Packet } from "../src/data";
 
 describe(`data`, () => {
+    describe(`defaults in packet`, () => {
+        const pkt: Packet = {
+            id: 0x123,
+            data: Buffer.from("0011223344556677", "hex"),
+        };
+        const d = new Data(pkt);
+        it("sets the id properly", () => {
+            assert.strictEqual(
+                d.id,
+                pkt.id,
+            );
+        });
+        it("sets ext properly", () => {
+            assert.strictEqual(
+                d.ext,
+                false,
+            );
+        });
+        it("sets rtr properly", () => {
+            assert.strictEqual(
+                d.rtr,
+                false,
+            );
+        });
+        it("sets error properly", () => {
+            assert.strictEqual(
+                d.error,
+                false,
+            );
+        });
+        it("sets the length properly", () => {
+            assert.strictEqual(
+                d.length,
+                pkt.data.length,
+            );
+        });
+        it("sets the data properly", () => {
+            assert.deepStrictEqual(
+                d.data,
+                pkt.data,
+            );
+        });
+    });
     describe("building a standard packet", () => {
         const str = "t12380011223344556677";
         const pkt: Packet = {
