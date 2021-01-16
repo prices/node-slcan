@@ -5,19 +5,32 @@
  *
  * ## Introduction
  *
- * Parses a data packet
+ * Creates a command packet from a command
  *
  */
 
+/**
+ * The command interface.
+ */
 export interface ICommand {
+    /** This is the spelled out name */
     readonly name: string;
+    /** This is the packet prefix that is used when we send it out */
     readonly prefix: string;
+    /** The number of digits to put into the packet.  Set to 0 if there is no options. */
     readonly digits: number;
+    /** The options that are possible with this one */
     readonly options?: { [key: string]: Buffer };
 }
-/* eslint-disable no-bitwise */
-/* tslint:disable:no-bitwise */
+
+/**
+ * This creates a command packet to send out, and checks to see if a reply is actually for
+ * this command.
+ * 
+ * This is an immutable object.
+ */
 export class Command {
+    /** The information about the commands that we know. */
     public static readonly commands: { [key: string]: ICommand } = {
         "canbitrate": {
             name: "CAN Bit Rate",
@@ -60,17 +73,29 @@ export class Command {
             },
         },
     }
+    /** The name of this command */
     public readonly name: string;
+    /** The data we will put on the packet */
     public readonly data: Buffer;
+    /** The command that we have */
     public readonly command: ICommand;
+    /** Flag to show if this is a good command or not */
     public readonly bad: boolean;
+    /** The string representation of this command */
     private readonly string: string;
+    /** This is for bad commands */
     private readonly _bad: ICommand = {
         name: "bad",
         prefix: "",
         digits: 0,
     }
 
+    /**
+     * Creates the object
+     * 
+     * @param name The short name of the command
+     * @param data The data to attach.  Not used if the command does not require data.
+     */
     constructor(name: string, data?: Buffer | string) {
         this.bad = false;
         this.name = name.toLowerCase();
@@ -98,7 +123,9 @@ export class Command {
         this.string = this._string();
         Object.freeze(this);
     }
-
+    /**
+     * Creates a string from this object
+     */
     private _string(): string {
         let str = '';
         if (this.bad) {
@@ -110,7 +137,9 @@ export class Command {
         }
         return str;
     }
-
+    /**
+     * Public function to get a string.
+     */
     public toString(): string {
         return this.string;
     }
