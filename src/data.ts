@@ -12,10 +12,10 @@
 export interface Packet {
     readonly id: number;
     readonly data: Buffer;
-    readonly length: number;
-    readonly ext: boolean;
-    readonly rtr: boolean;
-    readonly error: boolean;
+    readonly length?: number;
+    readonly ext?: boolean;
+    readonly rtr?: boolean;
+    readonly error?: boolean;
     readonly timestamp?: number;
 }
 /* eslint-disable no-bitwise */
@@ -73,44 +73,44 @@ export class Data implements Packet{
             }
         } else {
             const pkt = buf as Packet;
-            this.id = pkt.id;
+            this.ext = (pkt.ext === undefined) ? false : pkt.ext;
+            this.id = (pkt.ext) ? pkt.id & this.idmask.ext : pkt.id & this.idmask.std;
             this.data = pkt.data;
-            this.length = pkt.length;
-            this.ext = pkt.ext;
-            this.rtr = pkt.rtr;
-            this.error = pkt.error;
+            this.length = (pkt.length === undefined) ? this.data.length : pkt.length;
+            this.rtr = (pkt.rtr === undefined) ? false : pkt.rtr;
+            this.error = (pkt.error === undefined) ? false : pkt.error;
             this.timestamp = pkt.timestamp;
         }
-        this.string = this._string(this);
+        this.string = this._string();
         Object.freeze(this);
     }
 
-    private _string(p: Packet): string {
+    private _string(): string {
         let str = '';
         let buf;
-        if (p.rtr) {
-            str += (p.ext) ? 'R' : 'r';
+        if (this.rtr) {
+            str += (this.ext) ? 'R' : 'r';
         } else {
-            str += (p.ext) ? 'T' : 't';
+            str += (this.ext) ? 'T' : 't';
         }
-        if (p.ext) {
+        if (this.ext) {
             buf = Buffer.alloc(4);
-            buf.writeUInt32BE(p.id & this.idmask.ext);
+            buf.writeUInt32BE(this.id & this.idmask.ext);
             str += buf.toString('hex');
         } else {
             buf = Buffer.alloc(2);
-            buf.writeUInt16BE(p.id & this.idmask.std);
+            buf.writeUInt16BE(this.id & this.idmask.std);
             str += buf.toString('hex').slice(-3);
         }
         buf = Buffer.alloc(1);
-        buf.writeInt8(p.length);
+        buf.writeInt8(this.length);
         str += buf.toString('hex').slice(-1);
-        if (!p.rtr) {
-            str += p.data.toString('hex');
+        if (!this.rtr) {
+            str += this.data.toString('hex');
         }
-        if ((p.timestamp !== undefined) && (p.timestamp <= this.timestampmax)) {
+        if ((this.timestamp !== undefined) && (this.timestamp <= this.timestampmax)) {
             buf = Buffer.alloc(2);
-            buf.writeUInt16BE(p.timestamp);
+            buf.writeUInt16BE(this.timestamp);
             str += buf.toString('hex');
         }
         return str;

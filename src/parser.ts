@@ -12,6 +12,9 @@
 import { Transform } from "stream"
 
 export class Parser extends Transform {
+    public static readonly delimiter = '\r';
+    public static readonly errorDelimiter = '\u0007';   // \u0007 is the BEL character (ascii 7)
+
     private buf: Buffer = Buffer.alloc(0);
     constructor(options = {}) {
         super(options);
@@ -19,8 +22,8 @@ export class Parser extends Transform {
 
     public _transform(chunk: Buffer, _encoding: string, callback: () => void): void {
         let index = 0;
-        while(index > -1) {  // \u0007 is the BEL character (ascii 7)
-            index = chunk.indexOf('\u0007');
+        while(index > -1) {
+            index = chunk.indexOf(Parser.errorDelimiter);
             if (index > -1) {
                 chunk = Buffer.concat([chunk.slice(0,index), chunk.slice(index+1, chunk.length)]);
                 this.emit("reply", false);
@@ -29,7 +32,7 @@ export class Parser extends Transform {
         chunk = Buffer.concat([this.buf, chunk]);
         let end = 0;
         while(end > -1) {
-            end = chunk.indexOf("\r");
+            end = chunk.indexOf(Parser.delimiter);
             if (end > -1) {
                 const c = chunk.slice(0, end);
                 if (this._isData(c)) {
