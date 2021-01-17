@@ -24,7 +24,7 @@ import { EventEmitter } from 'events';
  * The main class for slcan.  This is the class the user
  * will instantiate.
  */
-export default class SlCAN extends EventEmitter {
+export default class Slcan extends EventEmitter {
     /** The serial port to use. */
     private _port: SerialPort;
     /** The parser we are using. */
