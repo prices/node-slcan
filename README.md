@@ -42,11 +42,18 @@ can.on('data', (data) => {
      */
 });
 
-/* Send a standard packet */
-can.send({id: 123, data: Buffer.from("01020304", "hex")});
+can.on('open', () => {
+    /* Send a standard packet */
+    can.send({id: 123, data: Buffer.from("01020304", "hex")});
 
-/* Send a extended packet */
-can.send({id: 123, ext: true, data: Buffer.from("01020304", "hex")});
+    /* Send a extended packet */
+    can.send({id: 123, ext: true, data: Buffer.from("01020304", "hex")});
+
+    /* Close the CAN connection */
+    can.close();
+};
+
+can.open();
 
 ~~~~~
 
