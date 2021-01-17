@@ -15,8 +15,6 @@
     "license": "BSD",
     "scripts": {
         "prepare": "tsc",
-        "prepack": "mkdir -p rel",
-        "postpack": "mv *.tgz rel/",
         "pretest": "npm run check; npm run prepare",
         "test": "nyc mocha",
         "check": "tslint --project .",
