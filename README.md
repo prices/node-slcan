@@ -9,6 +9,13 @@ This is not an unabridged rendition of the protocol.  This is missing bits that 
 need.  If you need them added, please put in a issue (no promises when I might get to it) or a pull
 request.
 
+## Serial Port
+
+This uses node-serialport to actually connect to the port.  Documentation for that project can be
+found here:
+
+https://serialport.io/docs/
+
 ## Usage
 
 ~~~~~ts
@@ -38,6 +45,14 @@ can.send({id: 123, data: Buffer.from("01020304", "hex")});
 /* Send a extended packet */
 can.send({id: 123, ext: true, data: Buffer.from("01020304", "hex")});
 
+~~~~~
+
+## Testing
+
+Unit testing can be run with the following command:
+
+~~~~~sh
+# npm test
 ~~~~~
 
 ## License
