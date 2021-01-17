@@ -51,7 +51,7 @@ can.on('open', () => {
 
     /* Close the CAN connection */
     can.close();
-};
+});
 
 can.open();
 
