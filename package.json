@@ -1,11 +1,11 @@
 {
-    "name": "slcan",
+    "name": "@prices/slcan",
     "version": "0.1.0",
     "description": "nodejs serial line CAN support",
     "main": "./lib/serial.js",
     "repository": {
         "type": "git",
-        "url": "github.com/prices/node-slcan.git"
+        "url": "git://github.com/prices/node-slcan.git"
     },
     "keywords": [
         "serial",
@@ -27,6 +27,9 @@
     "files": [
         "lib"
     ],
+    "publishConfig": {
+        "registry":"https://npm.pkg.github.com"
+    },
     "dependencies": {
         "@types/serialport": "^8.0.1",
         "serialport": "^9.0.0",
