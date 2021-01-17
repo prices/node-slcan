@@ -24,7 +24,7 @@ import { EventEmitter } from 'events';
  * The main class for slcan.  This is the class the user
  * will instantiate.
  */
-export default class Slcan extends EventEmitter {
+class Slcan extends EventEmitter {
     /** The serial port to use. */
     private _port: SerialPort;
     /** The parser we are using. */
@@ -45,7 +45,7 @@ export default class Slcan extends EventEmitter {
             this.emit("ready");
         });
         this._parser.on("data", (data) => {
-            this.emit("data", data);
+            this.emit("data", (new Data(data)).toArray());
         });
     }
 
@@ -60,3 +60,5 @@ export default class Slcan extends EventEmitter {
     }
 
 }
+export default Slcan;
+export { Slcan, Packet }

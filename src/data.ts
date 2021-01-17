@@ -151,8 +151,26 @@ export class Data implements Packet {
     }
     /**
      * Public function to return the string
+     *
+     * @return The packet string
      */
     public toString(): string {
         return this.string;
+    }
+    /**
+     * Public function to return the string
+     *
+     * @return A packet array
+     */
+    public toArray(): Packet {
+        return {
+            id: this.id,
+            data: this.data,
+            length: this.length,
+            ext: this.ext,
+            rtr: this.rtr,
+            error: this.error,
+            timestamp: this.timestamp,
+        };
     }
 }

@@ -107,6 +107,12 @@ describe(`data`, () => {
                         str,
                     );
                 });
+                it("returns an array properly", () => {
+                    assert.deepStrictEqual(
+                        d.toArray(),
+                        { timestamp: undefined, ...pkt },
+                    );
+                });
             });
         }
     });
@@ -176,6 +182,12 @@ describe(`data`, () => {
                         str,
                     );
                 });
+                it("returns an array properly", () => {
+                    assert.deepStrictEqual(
+                        d.toArray(),
+                        { timestamp: undefined, ...pkt },
+                    );
+                });
             });
         }
     });
@@ -238,6 +250,12 @@ describe(`data`, () => {
                     assert.strictEqual(
                         d.toString(),
                         str,
+                    );
+                });
+                it("returns an array properly", () => {
+                    assert.deepStrictEqual(
+                        d.toArray(),
+                        { timestamp: undefined, ...pkt },
                     );
                 });
             });
@@ -307,6 +325,12 @@ describe(`data`, () => {
                     assert.strictEqual(
                         d.toString(),
                         str,
+                    );
+                });
+                it("returns an array properly", () => {
+                    assert.deepStrictEqual(
+                        d.toArray(),
+                        { timestamp: undefined, ...pkt },
                     );
                 });
             });
@@ -379,6 +403,12 @@ describe(`data`, () => {
                         str,
                     );
                 });
+                it("returns an array properly", () => {
+                    assert.deepStrictEqual(
+                        d.toArray(),
+                        { timestamp: undefined, ...pkt },
+                    );
+                });
             });
         }
     });
@@ -446,6 +476,12 @@ describe(`data`, () => {
                     assert.strictEqual(
                         d.toString(),
                         str,
+                    );
+                });
+                it("returns an array properly", () => {
+                    assert.deepStrictEqual(
+                        d.toArray(),
+                        { timestamp: undefined, ...pkt},
                     );
                 });
             });
