@@ -34,7 +34,7 @@ can.on('data', (data) => {
      *      ext: boolean,       // True if extended CAN frame
      *      rtr: boolean,       // True if a CAN retry frame
      *      error: boolean,     // True if this packet has errors
-     *      timestamp: number,  // The timestamp in ms for this packet.  Maxes out at 60,000 and rolls over.
+     *      timestamp?: number,  // The timestamp in ms for this packet.  Maxes out at 60,000 and rolls over.
      *  }
      */
 });
