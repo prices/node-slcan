@@ -5,6 +5,10 @@
 Tools for a serial line can connection, using the protocol found here:  
 http://www.can232.com/docs/can232_v3.pdf
 
+This is not an unabridged rendition of the protocol.  This is missing bits that I don't currently
+need.  If you need them added, please put in a issue (no promises when I might get to it) or a pull
+request.
+
 ## Usage
 
 ~~~~~ts
@@ -15,12 +19,23 @@ const can = new Slcan(new SerialPort("/dev/ttyUSB0"));
 
 can.on('data', (data) => {
     console.log(data);
+    /* Returns data as:
+     *  {
+     *      id:  number,        // CAN id
+     *      data: Buffer,       // CAN data,
+     *      length: number,     // CAN length (different from data.length),
+     *      ext: boolean,       // True if extended CAN frame
+     *      rtr: boolean,       // True if a CAN retry frame
+     *      error: boolean,     // True if this packet has errors
+     *      timestamp: number,  // The timestamp in ms for this packet.  Maxes out at 60,000 and rolls over.
+     *  }
+     */
 });
 
-/** Send a standard packet */
+/* Send a standard packet */
 can.send({id: 123, data: Buffer.from("01020304", "hex")});
 
-/** Send a extended packet */
+/* Send a extended packet */
 can.send({id: 123, ext: true, data: Buffer.from("01020304", "hex")});
 
 ~~~~~
