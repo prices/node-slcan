@@ -8,18 +8,34 @@
  * Parses the incoming stream of data
  *
  */
-
 import { Transform } from "stream"
 
+/**
+ * This parses the data coming in from the serial port
+ */
 export class Parser extends Transform {
+    /** The delimiter for the normal packets */
     public static readonly delimiter = '\r';
-    public static readonly errorDelimiter = '\u0007';   // \u0007 is the BEL character (ascii 7)
+    /** The delimiter that notes an error.  \u0007 is the BEL character (ascii 7) */
+    public static readonly errorDelimiter = '\u0007';
 
+    /** This is the buffer we store the incoming data into until there is enough to parse. */
     private buf: Buffer = Buffer.alloc(0);
+    /**
+     * Creates the object
+     *
+     * @param options The options to use for the parser
+     */
     constructor(options = {}) {
         super(options);
     }
-
+    /**
+     * This does the actual parsing.
+     *
+     * @param chunk The chunk of data coming in.
+     * @param _encoding  The encoding of the data coming in.
+     * @param callback The callback to call at the end.
+     */
     public _transform(chunk: Buffer, _encoding: string, callback: () => void): void {
         let index = 0;
         while(index > -1) {
@@ -49,6 +65,13 @@ export class Parser extends Transform {
         callback();
     }
 
+    /**
+     * This checks to see if the packet coming in is data
+     *
+     * @param chunk The chunk of data to check
+     *
+     * @return True if this is a data packet
+     */
     private _isData(chunk: Buffer): boolean {
         switch (chunk.toString().slice(0, 1)) {
             case 'r':
@@ -59,6 +82,13 @@ export class Parser extends Transform {
         }
         return false;
     }
+    /**
+     * This checks to see if the packet coming in is a reply
+     *
+     * @param chunk The chunk of data to check
+     *
+     * @return True if this is a reply packet
+     */
     private _isReply(chunk: Buffer): boolean {
         switch (chunk.toString().slice(0, 1)) {
             case 'z':

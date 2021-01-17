@@ -1,6 +1,6 @@
 
 import * as assert from "assert";
-import { SlCAN } from "../src/slcan";
+import SlCAN from "../src/slcan";
 import { Data } from "../src/data";
 import { Parser } from "../src/parser";
 import SerialPort from "serialport";

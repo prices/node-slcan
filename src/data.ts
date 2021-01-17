@@ -8,30 +8,59 @@
  * Parses a data packet
  *
  */
-
+/**
+ * This is the packet interface
+ */
 export interface Packet {
+    /** The CAN id to use in this packet */
     readonly id: number;
+    /** The data for the packet */
     readonly data: Buffer;
+    /** The length of the packet.  For RTR packets this is different from the data length. */
     readonly length?: number;
+    /** True if this is an extended packet. */
     readonly ext?: boolean;
+    /** True if this is an RTR packet */
     readonly rtr?: boolean;
+    /** True if this packet has errors */
     readonly error?: boolean;
+    /** Timestamp if this packet in ms */
     readonly timestamp?: number;
 }
 /* eslint-disable no-bitwise */
 /* tslint:disable:no-bitwise */
+/**
+ * This does the conversions of the packets from text to something more useful.  It
+ * does the conversion both ways.  It can be created from the string, or from the @see Packet interface.
+ */
 export class Data implements Packet {
+    /** The CAN id to use in this packet */
     public readonly id: number;
+    /** The data for the packet */
     public readonly data: Buffer;
+    /** The length of the packet.  For RTR packets this is different from the data length. */
     public readonly length: number;
+    /** True if this is an extended packet. */
     public readonly ext: boolean;
+    /** True if this is an RTR packet */
     public readonly rtr: boolean;
+    /** True if this packet has errors */
     public readonly error: boolean;
+    /** Timestamp if this packet in ms */
     public readonly timestamp?: number;
+    /** This is the string representation of the packet */
     private readonly string: string;
+    /** The id masks for the standard and extended can frames */
     private readonly idmask = { ext: 0x1FFFFFFF, std: 0x7FF }
+    /** This is the maximum for the time stamp. */
     private readonly timestampmax = 0xEA5F;
 
+    /**
+     * Creates the object
+     *
+     * @param buf This is the packet data to create this object from.  It can be the
+     *            string incoming on the serial port, a Packet interface, or a Buffer
+     */
     constructor(buf: Buffer | Packet | string) {
         if ((buf instanceof Buffer) || (typeof buf === 'string')) {
             const str = (buf instanceof Buffer) ? buf.toString() : buf;
@@ -85,6 +114,11 @@ export class Data implements Packet {
         Object.freeze(this);
     }
 
+    /**
+     * This creates the string from the @see Packet interface.
+     *
+     * @return The string that goes on the serial port
+     */
     private _string(): string {
         let str = '';
         let buf;
@@ -115,7 +149,9 @@ export class Data implements Packet {
         }
         return str;
     }
-
+    /**
+     * Public function to return the string
+     */
     public toString(): string {
         return this.string;
     }

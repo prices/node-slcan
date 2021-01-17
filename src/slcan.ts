@@ -18,15 +18,22 @@ import { Parser } from './parser';
 const delimiter = require('@serialport/parser-delimiter')
 import * as stream from 'stream';
 import { Data, Packet } from './data';
-
 import { EventEmitter } from 'events';
 
-export class SlCAN extends EventEmitter {
+/**
+ * The main class for slcan.  This is the class the user
+ * will instantiate.
+ */
+export default class SlCAN extends EventEmitter {
+    /** The serial port to use. */
     private _port: SerialPort;
+    /** The parser we are using. */
     private _parser: stream.Transform;
 
     /**
-     * Constructor
+     * Creates the object
+     *
+     * @param port The serial port to use
      */
     constructor(port: SerialPort) {
         super();
@@ -42,6 +49,11 @@ export class SlCAN extends EventEmitter {
         });
     }
 
+    /**
+     * Sends out data packets.
+     *
+     * @param pkt The data packet to send out
+     */
     public send(pkt: Packet) {
         const d = new Data(pkt);
         this._port.write(d.toString() + Parser.delimiter);

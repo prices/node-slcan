@@ -26,7 +26,7 @@ export interface ICommand {
 /**
  * This creates a command packet to send out, and checks to see if a reply is actually for
  * this command.
- * 
+ *
  * This is an immutable object.
  */
 export class Command {
@@ -92,7 +92,7 @@ export class Command {
 
     /**
      * Creates the object
-     * 
+     *
      * @param name The short name of the command
      * @param data The data to attach.  Not used if the command does not require data.
      */
@@ -125,6 +125,8 @@ export class Command {
     }
     /**
      * Creates a string from this object
+     *
+     * @return The packet string
      */
     private _string(): string {
         let str = '';
@@ -139,6 +141,8 @@ export class Command {
     }
     /**
      * Public function to get a string.
+     *
+     * @return The packet string
      */
     public toString(): string {
         return this.string;
