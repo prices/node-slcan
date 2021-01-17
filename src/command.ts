@@ -19,8 +19,22 @@ export interface ICommand {
     readonly prefix: string;
     /** The number of digits to put into the packet.  Set to 0 if there is no options. */
     readonly digits: number;
+    /** The prefix expected in the reply */
+    readonly replyPrefix: string;
     /** The options that are possible with this one */
     readonly options?: { [key: string]: Buffer };
+}
+
+/**
+ * The command interface.
+ */
+export interface IReply {
+    /** Is this an error */
+    readonly error: boolean;
+    /** The prefix in this reply */
+    readonly prefix: string;
+    /** The data returned with the packet */
+    readonly data: Buffer;
 }
 
 /**
@@ -47,21 +61,25 @@ export class Command {
                 "800K": Buffer.from([7]),
                 "1M": Buffer.from([8]),
             },
+            replyPrefix: "",
         },
         "open": {
             name: "Open CAN Channel",
             prefix: "O",
             digits: 0,
+            replyPrefix: "",
         },
         "listen": {
             name: "Listen to the CAN Channel",
             prefix: "L",
             digits: 0,
+            replyPrefix: "",
         },
         "close": {
             name: "Close the CAN Channel",
             prefix: "C",
             digits: 0,
+            replyPrefix: "",
         },
         "autopoll": {
             name: "Set the autopoll",
@@ -71,12 +89,21 @@ export class Command {
                 "OFF": Buffer.from([0]),
                 "ON": Buffer.from([1]),
             },
+            replyPrefix: "",
+        },
+        "flags": {
+            name: "Read out the flags",
+            prefix: "F",
+            digits: 0,
+            replyPrefix: "F",
         },
     }
     /** The name of this command */
     public readonly name: string;
     /** The data we will put on the packet */
     public readonly data: Buffer;
+    /** The data we will put on the packet */
+    public readonly length: number;
     /** The command that we have */
     public readonly command: ICommand;
     /** Flag to show if this is a good command or not */
@@ -88,6 +115,7 @@ export class Command {
         name: "bad",
         prefix: "",
         digits: 0,
+        replyPrefix: "",
     }
 
     /**
@@ -121,6 +149,7 @@ export class Command {
             this.bad = true;
         }
         this.string = this._string();
+        this.length = this.string.length;
         Object.freeze(this);
     }
     /**
@@ -146,5 +175,13 @@ export class Command {
      */
     public toString(): string {
         return this.string;
+    }
+    /**
+     * Checks to see if this reply is for me
+     *
+     * @param reply The reply to check
+     */
+    public isReply(reply: IReply): boolean {
+        return this.command.replyPrefix === reply.prefix;
     }
 }

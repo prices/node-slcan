@@ -1,6 +1,6 @@
 
 import * as assert from "assert";
-import { Command } from "../src/command";
+import { Command, IReply } from "../src/command";
 
 describe(`command`, () => {
     describe(`a bad command with data`, () => {
@@ -62,6 +62,24 @@ describe(`command`, () => {
                 "O",
             );
         });
+        it("accepts a good reply", () => {
+            assert.strictEqual(
+                d.isReply({error: false, prefix: "", data: Buffer.alloc(0)}),
+                true,
+            );
+        });
+        it("accepts a bad reply", () => {
+            assert.strictEqual(
+                d.isReply({error: true, prefix: "", data: Buffer.alloc(0)}),
+                true,
+            );
+        });
+        it("passes on a reply not for it", () => {
+            assert.strictEqual(
+                d.isReply({error: true, prefix: "F", data: Buffer.from([1])}),
+                false,
+            );
+        });
     });
     describe(`create an close command`, () => {
         const d = new Command("close");
@@ -77,6 +95,24 @@ describe(`command`, () => {
                 "C",
             );
         });
+        it("accepts a good reply", () => {
+            assert.strictEqual(
+                d.isReply({error: false, prefix: "", data: Buffer.alloc(0)}),
+                true,
+            );
+        });
+        it("accepts a bad reply", () => {
+            assert.strictEqual(
+                d.isReply({error: true, prefix: "", data: Buffer.alloc(0)}),
+                true,
+            );
+        });
+        it("passes on a reply not for it", () => {
+            assert.strictEqual(
+                d.isReply({error: true, prefix: "F", data: Buffer.from([1])}),
+                false,
+            );
+        });
     });
     describe(`create an listen command`, () => {
         const d = new Command("listen");
@@ -90,6 +126,57 @@ describe(`command`, () => {
             assert.strictEqual(
                 d.toString(),
                 "L",
+            );
+        });
+        it("accepts a good reply", () => {
+            assert.strictEqual(
+                d.isReply({error: false, prefix: "", data: Buffer.alloc(0)}),
+                true,
+            );
+        });
+        it("accepts a bad reply", () => {
+            assert.strictEqual(
+                d.isReply({error: true, prefix: "", data: Buffer.alloc(0)}),
+                true,
+            );
+        });
+        it("passes on a reply not for it", () => {
+            assert.strictEqual(
+                d.isReply({error: true, prefix: "F", data: Buffer.from([1])}),
+                false,
+            );
+        });
+    });
+    describe(`create an flags command`, () => {
+        const d = new Command("flags");
+        it("is marked good", () => {
+            assert.strictEqual(
+                d.bad,
+                false,
+            );
+        });
+        it("has the correct string", () => {
+            assert.strictEqual(
+                d.toString(),
+                "F",
+            );
+        });
+        it("accepts a good reply", () => {
+            assert.strictEqual(
+                d.isReply({error: false, prefix: "F", data: Buffer.from([0, 1])}),
+                true,
+            );
+        });
+        it("accepts a bad reply", () => {
+            assert.strictEqual(
+                d.isReply({error: true, prefix: "F", data: Buffer.from([0, 1])}),
+                true,
+            );
+        });
+        it("passes on a reply not for it", () => {
+            assert.strictEqual(
+                d.isReply({error: true, prefix: "", data: Buffer.alloc(0)}),
+                false,
             );
         });
     });

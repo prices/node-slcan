@@ -18,6 +18,7 @@ import { Parser } from './parser';
 const delimiter = require('@serialport/parser-delimiter')
 import * as stream from 'stream';
 import { Data, Packet } from './data';
+import { Command, IReply } from './command';
 import { EventEmitter } from 'events';
 
 /**
@@ -26,10 +27,15 @@ import { EventEmitter } from 'events';
  */
 class Slcan extends EventEmitter {
     /** The serial port to use. */
-    private _port: SerialPort;
+    private readonly _port: SerialPort;
     /** The parser we are using. */
-    private _parser: stream.Transform;
-
+    private readonly _parser: stream.Transform;
+    /** The waiting replies */
+    private _replies: { [key: string]: (reply: IReply) => boolean } = {};
+    /** The timeout in ms */
+    private timeout: number = 500;
+    /** Flag that says if our data channel is open or not */
+    private _open: boolean = false;
     /**
      * Creates the object
      *
@@ -39,13 +45,13 @@ class Slcan extends EventEmitter {
         super();
         this._port = port;
         this._parser = this._port.pipe(new Parser());
-        this._port.on("open", () => {
-            this._port.flush();
-            this.emit("open");
-            this.emit("ready");
-        });
+        this._parser.on("reply", (r) => this._reply(r));
         this._parser.on("data", (data) => {
             this.emit("data", (new Data(data)).toArray());
+        });
+        this._port.on("open", () => {
+            this._port.flush();
+            this.emit("ready");
         });
     }
 
@@ -54,11 +60,120 @@ class Slcan extends EventEmitter {
      *
      * @param pkt The data packet to send out
      */
-    public send(pkt: Packet) {
-        const d = new Data(pkt);
-        this._port.write(d.toString() + Parser.delimiter);
+    public send(pkt: Packet): boolean {
+        if (this._open) {
+            const d = new Data(pkt);
+            this._write(d.toString());
+            return true;
+        }
+        return false;
     }
 
+    /**
+     * Sends out data packets.
+     *
+     * @param pkt The data packet to send out
+     */
+    public open(): Promise<boolean> {
+        return this._command("open", () => {
+            this._open = true;
+            this.emit("open");
+        });
+    }
+    /**
+     * Sends out data packets.
+     *
+     * @param pkt The data packet to send out
+     */
+    public listen(): Promise<boolean> {
+        return this._command("listen", () => {
+            this._open = true;
+            this.emit("open");
+        });
+    }
+
+    /**
+     * Sends out data packets.
+     *
+     * @param pkt The data packet to send out
+     */
+    public close(): Promise<boolean> {
+        return this._command("close", () => {
+            this._open = false;
+            this.emit("close");
+        });
+    }
+
+    private _command(cmd: string, onSuccess: () => void): Promise<boolean> {
+        return Promise.race([
+            new Promise<boolean>((resolve) => {
+                const c = new Command(cmd);
+                this._replies[cmd] = (reply) => {
+                    if (c.isReply(reply)) {
+                        if (reply.error) {
+                            resolve(false);
+                        } else {
+                            onSuccess();
+                            resolve(true);
+                        }
+                        return true;
+                    }
+                    return false;
+                };
+                this._write(c.toString());
+            }),
+            new Promise<boolean>((resolve) => {
+                setTimeout(() => {
+                    resolve(false),
+                    delete this._replies[cmd];
+                });
+            }),
+        ]);
+    }
+    /**
+     * This deals with replies
+     *
+     * @param reply The reply we are dealing with
+     */
+    private _reply(reply: string | boolean): void {
+        const r = this._parseReply(reply);
+        const obj = this._replies;
+        let key: keyof (typeof obj);
+        for (key in this._replies) {
+            if (this._replies[key](r)) {
+                delete this._replies[key];
+                break;
+            }
+        }
+    }
+
+    /**
+     * This parses a reply
+     *
+     * @param reply The reply to parse
+     */
+    private _parseReply(reply: string | boolean): IReply {
+        if (typeof reply === "string") {
+            return {
+                error: reply.length === 0,
+                prefix: reply.slice(0, 1),
+                data: Buffer.from(reply.slice(1), "hex"),
+            };
+        }
+        return {
+            error: !reply,
+            prefix: "",
+            data: Buffer.alloc(0),
+        };
+    }
+    /**
+     * Send out stuff
+     *
+     * @param str The string to send out
+     */
+    private _write(str: string): void {
+        this._port.write(str + Parser.delimiter);
+    }
 }
 export default Slcan;
 export { Slcan, Packet }

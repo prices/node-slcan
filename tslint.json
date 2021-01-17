@@ -41,7 +41,8 @@
             "src/contrib.d.ts"
         ],
         "include": [
-            "src/**"
+            "src/**",
+            "test/**"
         ]
     }
 }
