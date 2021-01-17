@@ -28,13 +28,14 @@ can.on('data', (data) => {
     console.log(data);
     /* Returns data as:
      *  {
-     *      id:  number,        // CAN id
-     *      data: Buffer,       // CAN data,
-     *      length: number,     // CAN length (different from data.length),
-     *      ext: boolean,       // True if extended CAN frame
-     *      rtr: boolean,       // True if a CAN retry frame
-     *      error: boolean,     // True if this packet has errors
-     *      timestamp?: number,  // The timestamp in ms for this packet.  Maxes out at 60,000 and rolls over.
+     *      id:  number,         // CAN id
+     *      data: Buffer,        // CAN data,
+     *      length: number,      // CAN length (different from data.length),
+     *      ext: boolean,        // True if extended CAN frame
+     *      rtr: boolean,        // True if a CAN retry frame
+     *      error: boolean,      // True if this packet has errors
+     *      timestamp?: number,  // The timestamp in ms for this packet.  
+     *                           // Maxes out at 60,000 and rolls over.
      *  }
      */
 });
