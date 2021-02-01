@@ -1,6 +1,6 @@
 {
     "name": "@prices/slcan",
-    "version": "0.5.2",
+    "version": "0.5.3",
     "description": "nodejs serial line CAN support",
     "main": "./lib/slcan.js",
     "repository": {
