@@ -64,22 +64,23 @@ export class Data implements Packet {
     constructor(buf: Buffer | Packet | string) {
         if ((buf instanceof Buffer) || (typeof buf === 'string')) {
             const str = (buf instanceof Buffer) ? buf.toString() : buf;
-            console.log({str});
             const type = str.slice(0, 1);
+            const hex = str.slice(1).replace(/[^A-Fa-f0-9]/g, '');
+            const data = Buffer.from(hex, "hex");
             this.ext = (type === 'R') || (type === 'T');
             this.rtr = (type === 'R') || (type === 'r');
             this.error = false;
 
             if (this.ext) {
-                this.id = Buffer.from((str + "0000000000").slice(1,9), 'hex').readUInt32BE(0) & this.idmask.ext;
-                this.length = Buffer.from('0' + (str + "0000000000").slice(9, 10), 'hex').readInt8(0);
-                this.data = Buffer.from(str.slice(10), 'hex');
-                this.error = this.error || str.length < 10;
+                this.id = Buffer.from((hex + "0000000000").slice(0,8), 'hex').readUInt32BE(0) & this.idmask.ext;
+                this.length = Buffer.from('0' + (hex + "0000000000").slice(8, 9), 'hex').readInt8(0);
+                this.data = Buffer.from(hex.slice(9), 'hex');
+                this.error = this.error || hex.length < 9;
             } else {
-                this.id = Buffer.from('0' + (str + "00000").slice(1,4), 'hex').readUInt16BE(0) & this.idmask.std;
-                this.length = Buffer.from('0' + (str + "00000").slice(4, 5), 'hex').readInt8(0);
-                this.data = Buffer.from(str.slice(5), 'hex');
-                this.error = this.error || str.length < 5;
+                this.id = Buffer.from('0' + (hex + "00000").slice(0,3), 'hex').readUInt16BE(0) & this.idmask.std;
+                this.length = Buffer.from('0' + (hex + "00000").slice(3, 4), 'hex').readInt8(0);
+                this.data = Buffer.from(hex.slice(4), 'hex');
+                this.error = this.error || hex.length < 4;
             }
 
             if (this.rtr) {

@@ -412,7 +412,7 @@ describe(`data`, () => {
             });
         }
     });
-    describe("building a extended packet", () => {
+    describe("building a extended RTR packet", () => {
         const str = "R123456788";
         const pkt: Packet = {
             id: 0x12345678,
@@ -682,17 +682,20 @@ describe(`data`, () => {
             );
         });
     });
-
-
-
-
-
-
-
-
-
-
-
-
+    describe("building a extended packet from a REALLY bad string", () => {
+        const d = new Data(Buffer.from("T0C80800N\u0000�\u001b\u0000\u0000\u0000 \u0000 \b\u0000\u0000\u0000�\u0000T000101008F0D8FFFF00000000"));
+        it("sets error properly", () => {
+            assert.strictEqual(
+                d.error,
+                true,
+            );
+        });
+        it("sets the data properly", () => {
+            assert.deepStrictEqual(
+                d.data,
+                Buffer.alloc(0),
+            );
+        });
+    });
 });
 
