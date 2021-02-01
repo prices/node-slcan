@@ -510,8 +510,23 @@ describe(`data`, () => {
             );
         });
     });
-    describe("building a standard packet too short", () => {
+    describe("building a standard packet data too short", () => {
         const d = new Data(Buffer.from("t123800112233445566"));
+        it("sets error properly", () => {
+            assert.strictEqual(
+                d.error,
+                true,
+            );
+        });
+        it("has the correct size data", () => {
+            assert.strictEqual(
+                d.data.length,
+                d.length,
+            );
+        });
+    });
+    describe("building a standard string too short", () => {
+        const d = new Data(Buffer.from("t123"));
         it("sets error properly", () => {
             assert.strictEqual(
                 d.error,
@@ -540,8 +555,23 @@ describe(`data`, () => {
             );
         });
     });
-    describe("building a extended packet too short", () => {
+    describe("building a extended packet data too short", () => {
         const d = new Data(Buffer.from("T12345678800112233445566"));
+        it("sets error properly", () => {
+            assert.strictEqual(
+                d.error,
+                true,
+            );
+        });
+        it("has the correct size data", () => {
+            assert.strictEqual(
+                d.data.length,
+                d.length,
+            );
+        });
+    });
+    describe("building a extended string too short", () => {
+        const d = new Data(Buffer.from("T12345678"));
         it("sets error properly", () => {
             assert.strictEqual(
                 d.error,
@@ -585,6 +615,21 @@ describe(`data`, () => {
             );
         });
     });
+    describe("building a standard RTR packet too short", () => {
+        const d = new Data(Buffer.from("r123"));
+        it("sets error properly", () => {
+            assert.strictEqual(
+                d.error,
+                true,
+            );
+        });
+        it("sets the data properly", () => {
+            assert.deepStrictEqual(
+                d.data,
+                Buffer.alloc(0),
+            );
+        });
+    });
     describe("building a standard RTR packet timestamp too big", () => {
         const d = new Data(Buffer.from("r1238FFFF"));
         it("sets error properly", () => {
@@ -606,7 +651,7 @@ describe(`data`, () => {
             );
         });
     });
-    describe("building a extended packet too long", () => {
+    describe("building a extended RTR packet too long", () => {
         const d = new Data(Buffer.from("R12345678811"));
         it("sets error properly", () => {
             assert.strictEqual(
@@ -622,6 +667,21 @@ describe(`data`, () => {
         });
     });
 
+    describe("building a extended RTR string too short", () => {
+        const d = new Data(Buffer.from("R12345678"));
+        it("sets error properly", () => {
+            assert.strictEqual(
+                d.error,
+                true,
+            );
+        });
+        it("sets the data properly", () => {
+            assert.deepStrictEqual(
+                d.data,
+                Buffer.alloc(0),
+            );
+        });
+    });
 
 
 
