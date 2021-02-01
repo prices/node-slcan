@@ -64,6 +64,7 @@ export class Data implements Packet {
     constructor(buf: Buffer | Packet | string) {
         if ((buf instanceof Buffer) || (typeof buf === 'string')) {
             const str = (buf instanceof Buffer) ? buf.toString() : buf;
+            console.log({str});
             const type = str.slice(0, 1);
             this.ext = (type === 'R') || (type === 'T');
             this.rtr = (type === 'R') || (type === 'r');
