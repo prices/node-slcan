@@ -70,27 +70,15 @@ export class Data implements Packet {
             this.error = false;
 
             if (this.ext) {
-                if (str.length >= 10) {
-                    this.id = Buffer.from(str.slice(1,9), 'hex').readUInt32BE(0) & this.idmask.ext;
-                    this.length = Buffer.from('0' + str.slice(9, 10), 'hex').readInt8(0);
-                    this.data = Buffer.from(str.slice(10), 'hex');
-                } else {
-                    this.id = 0;
-                    this.length = 0;
-                    this.data = Buffer.alloc(0);
-                    this.error = true;
-                }
+                this.id = Buffer.from((str + "0000000000").slice(1,9), 'hex').readUInt32BE(0) & this.idmask.ext;
+                this.length = Buffer.from('0' + (str + "0000000000").slice(9, 10), 'hex').readInt8(0);
+                this.data = Buffer.from(str.slice(10), 'hex');
+                this.error = this.error || str.length < 10;
             } else {
-                if (str.length >= 5) {
-                    this.id = Buffer.from('0' + str.slice(1,4), 'hex').readUInt16BE(0) & this.idmask.std;
-                    this.length = Buffer.from('0' + str.slice(4, 5), 'hex').readInt8(0);
-                    this.data = Buffer.from(str.slice(5), 'hex');
-                } else {
-                    this.id = 0;
-                    this.length = 0;
-                    this.data = Buffer.alloc(0);
-                    this.error = true;
-                }
+                this.id = Buffer.from('0' + (str + "00000").slice(1,4), 'hex').readUInt16BE(0) & this.idmask.std;
+                this.length = Buffer.from('0' + (str + "00000").slice(4, 5), 'hex').readInt8(0);
+                this.data = Buffer.from(str.slice(5), 'hex');
+                this.error = this.error || str.length < 5;
             }
 
             if (this.rtr) {
