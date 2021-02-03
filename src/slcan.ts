@@ -131,7 +131,7 @@ class Slcan extends EventEmitter {
                 setTimeout(() => {
                     resolve(false),
                     delete this._replies[cmd];
-                });
+                }, this.timeout);
             }),
         ]);
     }
