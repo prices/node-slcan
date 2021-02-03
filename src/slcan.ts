@@ -77,6 +77,7 @@ class Slcan extends EventEmitter {
     public open(force = false): Promise<boolean> {
         if (force) {
             this._open = true;
+            this.emit("open");
             return Promise.resolve(true);
         }
         return this._command("open", () => {

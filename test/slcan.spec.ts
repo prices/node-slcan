@@ -76,6 +76,27 @@ describe(`Slcan`, () => {
             port.write(Parser.delimiter);
         });
     });
+    describe(`forcing it open`, () => {
+        it("deals with a good reply", (done) => {
+            const port = new SerialPort(portname);
+            const s = new Slcan(port);
+            s.on('ready', () => {
+                s.open(true).then((v) => {
+                    try {
+                        assert.strictEqual(
+                            v,
+                            true
+                        );
+                        done();
+                    } catch(e) {
+                        done();
+                    }
+                });
+                port.flush();
+                port.write(Parser.delimiter);
+            });
+        });
+    });
     describe(`sending open`, () => {
         it("deals with a good reply", (done) => {
             const port = new SerialPort(portname);
