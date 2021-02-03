@@ -74,7 +74,11 @@ class Slcan extends EventEmitter {
      *
      * @param pkt The data packet to send out
      */
-    public open(): Promise<boolean> {
+    public open(force = false): Promise<boolean> {
+        if (force) {
+            this._open = true;
+            return Promise.resolve(true);
+        }
         return this._command("open", () => {
             this._open = true;
             this.emit("open");
