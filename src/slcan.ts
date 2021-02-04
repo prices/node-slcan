@@ -35,15 +35,16 @@ class Slcan extends EventEmitter {
     /** The timeout in ms */
     private timeout: number = 500;
     /** Flag that says if our data channel is open or not */
-    private _open: boolean = false;
+    private _open: boolean;
     /**
      * Creates the object
      *
      * @param port The serial port to use
      */
-    constructor(port: SerialPort) {
+    constructor(port: SerialPort, autoopen = true) {
         super();
         this._port = port;
+        this._open = autoopen;
         this._parser = this._port.pipe(new Parser());
         this._parser.on("reply", (r) => this._reply(r));
         this._parser.on("data", (data) => {

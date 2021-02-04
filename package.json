@@ -16,7 +16,7 @@
     "scripts": {
         "prepare": "tsc",
         "pretest": "tslint --project .",
-        "test": "nyc mocha",
+        "test": "rm -Rf lib docs rel; nyc mocha",
         "check": "tslint --project .",
         "fix": "tslint --fix --project .",
         "doc": "typedoc --tsconfig ./tsconfig.json",
