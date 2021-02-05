@@ -179,6 +179,7 @@ class Slcan extends EventEmitter {
      * @param str The string to send out
      */
     private _write(str: string): void {
+        console.log(str);
         this._port.write(str + Parser.delimiter);
     }
 }
