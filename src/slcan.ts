@@ -53,6 +53,9 @@ class Slcan extends EventEmitter {
         this._port.on("open", () => {
             this._port.flush();
             this.emit("ready");
+            if (autoopen) {
+                this.emit("open");
+            }
         });
     }
 
@@ -75,15 +78,13 @@ class Slcan extends EventEmitter {
      *
      * @param pkt The data packet to send out
      */
-    public open(force = false): Promise<boolean> {
-        if (force) {
-            this._open = true;
-            this.emit("open");
-            return Promise.resolve(true);
-        }
+    public open(): Promise<boolean> {
         return this._command("open", () => {
+            const open = this._open;
             this._open = true;
-            this.emit("open");
+            if (!open) {
+                this.emit("open");
+            }
         });
     }
     /**

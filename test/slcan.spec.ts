@@ -23,7 +23,7 @@ describe(`Slcan`, () => {
             }
             const expect = (new Data(pkt)).toString() + Parser.delimiter;
             const port = new SerialPort(portname);
-            const s = new Slcan(port);
+            const s = new Slcan(port, false);
             s.on('ready', () => {
                 // This sends out the data when the port is ready
                 const ret = s.send(pkt);
@@ -45,7 +45,7 @@ describe(`Slcan`, () => {
             }
             const expect = (new Data(pkt)).toString() + Parser.delimiter;
             const port = new SerialPort(portname);
-            const s = new Slcan(port);
+            const s = new Slcan(port, false);
             s.on('ready', () => {
                 // This sends out the data when the port is ready
                 s.open();
@@ -72,35 +72,83 @@ describe(`Slcan`, () => {
                     );
                 } catch(e) {
                 }
-        });
+            });
             port.write(Parser.delimiter);
         });
-    });
-    describe(`forcing it open`, () => {
-        it("deals with a good reply", (done) => {
+        it("sends a standard data packet autoopen w/open called", (done) => {
+            const pkt = {
+                id: 5,
+                data: Buffer.from('01020304050607', 'hex'),
+            }
+            const expect = (new Data(pkt)).toString() + Parser.delimiter;
             const port = new SerialPort(portname);
-            const s = new Slcan(port);
+            const s = new Slcan(port, true);
             s.on('ready', () => {
-                s.open(true).then((v) => {
+                // This sends out the data when the port is ready
+                s.open();
+            });
+            s.on('open', () => {
+                port.flush();
+                port.on('data', (data: Buffer) => {
                     try {
                         assert.strictEqual(
-                            v,
-                            true
+                            data.toString(),
+                            expect,
                         );
                         done();
                     } catch(e) {
                         done();
                     }
-                });
+                });    
+                // This sends out the data when the port is ready
+                const ret = s.send(pkt);
+                try {
+                    assert.strictEqual(
+                        ret,
+                        true,
+                    );
+                } catch(e) {
+                }
+            });
+            port.write(Parser.delimiter);
+        });
+        it("sends a standard data packet with autoopen", (done) => {
+            const pkt = {
+                id: 5,
+                data: Buffer.from('01020304050607', 'hex'),
+            }
+            const expect = (new Data(pkt)).toString() + Parser.delimiter;
+            const port = new SerialPort(portname);
+            const s = new Slcan(port);
+            s.on('open', () => {
                 port.flush();
-                port.write(Parser.delimiter);
+                port.on('data', (data: Buffer) => {
+                    try {
+                        assert.strictEqual(
+                            data.toString(),
+                            expect,
+                        );
+                        done();
+                    } catch(e) {
+                        done();
+                    }
+                });    
+                // This sends out the data when the port is ready
+                const ret = s.send(pkt);
+                try {
+                    assert.strictEqual(
+                        ret,
+                        true,
+                    );
+                } catch(e) {
+                }
             });
         });
     });
     describe(`sending open`, () => {
         it("deals with a good reply", (done) => {
             const port = new SerialPort(portname);
-            const s = new Slcan(port);
+            const s = new Slcan(port, false);
             s.on('ready', () => {
                 s.open().then((v) => {
                     try {
@@ -119,7 +167,7 @@ describe(`Slcan`, () => {
         });
         it("deals with an error reply", (done) => {
             const port = new SerialPort(portname);
-            const s = new Slcan(port);
+            const s = new Slcan(port, false);
             s.on('ready', () => {
                 s.open().then((v) => {
                     try {
@@ -138,7 +186,7 @@ describe(`Slcan`, () => {
         });
         it("deals with a different reply first", (done) => {
             const port = new SerialPort(portname);
-            const s = new Slcan(port);
+            const s = new Slcan(port, false);
             s.on('ready', () => {
                 s.open().then((v) => {
                     try {
@@ -157,7 +205,7 @@ describe(`Slcan`, () => {
         });
         it("deals with no reply", (done) => {
             const port = new SerialPort(portname);
-            const s = new Slcan(port);
+            const s = new Slcan(port, false);
             s.on('ready', () => {
                 s.open().then((v) => {
                     try {
@@ -177,7 +225,7 @@ describe(`Slcan`, () => {
     describe(`sending close`, () => {
         it("deals with a good reply", (done) => {
             const port = new SerialPort(portname);
-            const s = new Slcan(port);
+            const s = new Slcan(port, false);
             s.on('ready', () => {
                 s.close().then((v) => {
                     try {
@@ -196,7 +244,7 @@ describe(`Slcan`, () => {
         });
         it("deals with an error reply", (done) => {
             const port = new SerialPort(portname);
-            const s = new Slcan(port);
+            const s = new Slcan(port, false);
             s.on('ready', () => {
                 s.close().then((v) => {
                     try {
@@ -216,7 +264,7 @@ describe(`Slcan`, () => {
         });
         it("deals with a different reply first", (done) => {
             const port = new SerialPort(portname);
-            const s = new Slcan(port);
+            const s = new Slcan(port, false);
             s.on('ready', () => {
                 s.close().then((v) => {
                     try {
@@ -236,7 +284,7 @@ describe(`Slcan`, () => {
         });
         it("deals with no reply", (done) => {
             const port = new SerialPort(portname);
-            const s = new Slcan(port);
+            const s = new Slcan(port, false);
             s.on('ready', () => {
                 s.close().then((v) => {
                     try {
@@ -256,7 +304,7 @@ describe(`Slcan`, () => {
     describe(`sending listen`, () => {
         it("deals with a good reply", (done) => {
             const port = new SerialPort(portname);
-            const s = new Slcan(port);
+            const s = new Slcan(port,false);
             s.on('ready', () => {
                 s.listen().then((v) => {
                     try {
@@ -275,7 +323,7 @@ describe(`Slcan`, () => {
         });
         it("deals with an error reply", (done) => {
             const port = new SerialPort(portname);
-            const s = new Slcan(port);
+            const s = new Slcan(port, false);
             s.on('ready', () => {
                 s.listen().then((v) => {
                     try {
@@ -294,7 +342,7 @@ describe(`Slcan`, () => {
         });
         it("deals with a different reply first", (done) => {
             const port = new SerialPort(portname);
-            const s = new Slcan(port);
+            const s = new Slcan(port, false);
             s.on('ready', () => {
                 s.listen().then((v) => {
                     try {
@@ -313,7 +361,7 @@ describe(`Slcan`, () => {
         });
         it("deals with no reply", (done) => {
             const port = new SerialPort(portname);
-            const s = new Slcan(port);
+            const s = new Slcan(port, false);
             s.on('ready', () => {
                 s.listen().then((v) => {
                     try {
