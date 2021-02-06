@@ -16,6 +16,58 @@ describe(`Slcan`, () => {
         MockBinding.reset();
     });
     describe(`sending data`, () => {
+        const pkts = [
+            { 
+                name: "standard packet",
+                pkt: {
+                    id: 5,
+                    data: Buffer.from('01020304050607', 'hex'),
+                }
+            },
+            { 
+                name: "extended packet",
+                pkt: {
+                    id: 0x14000000,
+                    data: Buffer.from('0000000000000000', 'hex'),
+                    ext: true,
+                }
+            },
+        ];
+        for (const p of pkts) {
+            it(`sends a ${p.name}`, (done) => {
+                const expect = (new Data(p.pkt)).toString() + Parser.delimiter;
+                const port = new SerialPort(portname);
+                const s = new Slcan(port, false);
+                s.on('ready', () => {
+                    // This sends out the data when the port is ready
+                    s.open();
+                });
+                s.on('open', () => {
+                    port.flush();
+                    port.on('data', (data: Buffer) => {
+                        try {
+                            assert.strictEqual(
+                                data.toString(),
+                                expect,
+                            );
+                            done();
+                        } catch(e) {
+                            done();
+                        }
+                    });    
+                    // This sends out the data when the port is ready
+                    const ret = s.send(p.pkt);
+                    try {
+                        assert.strictEqual(
+                            ret,
+                            true,
+                        );
+                    } catch(e) {
+                    }
+                });
+                port.write(Parser.delimiter);
+            });
+        }
         it("does not send a packet when the port is not open", (done) => {
             const pkt = {
                 id: 5,
@@ -37,43 +89,6 @@ describe(`Slcan`, () => {
                     done();
                 }
             });
-        });
-        it("sends a standard data packet", (done) => {
-            const pkt = {
-                id: 5,
-                data: Buffer.from('01020304050607', 'hex'),
-            }
-            const expect = (new Data(pkt)).toString() + Parser.delimiter;
-            const port = new SerialPort(portname);
-            const s = new Slcan(port, false);
-            s.on('ready', () => {
-                // This sends out the data when the port is ready
-                s.open();
-            });
-            s.on('open', () => {
-                port.flush();
-                port.on('data', (data: Buffer) => {
-                    try {
-                        assert.strictEqual(
-                            data.toString(),
-                            expect,
-                        );
-                        done();
-                    } catch(e) {
-                        done();
-                    }
-                });    
-                // This sends out the data when the port is ready
-                const ret = s.send(pkt);
-                try {
-                    assert.strictEqual(
-                        ret,
-                        true,
-                    );
-                } catch(e) {
-                }
-            });
-            port.write(Parser.delimiter);
         });
         it("sends a standard data packet autoopen w/open called", (done) => {
             const pkt = {
