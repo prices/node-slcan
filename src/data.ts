@@ -8,6 +8,7 @@
  * Parses a data packet
  *
  */
+ import { IReply } from './command';
 /**
  * This is the packet interface
  */

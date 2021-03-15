@@ -36,6 +36,10 @@ class Slcan extends EventEmitter {
     private timeout: number = 500;
     /** Flag that says if our data channel is open or not */
     private _open: boolean;
+    /** This is for making sure that packets don't crash if more than one is sent */
+    private _pktCounter: number = 0;
+    /** This says if we have enabled autopoll */
+    private _autopoll: boolean = true;
     /**
      * Creates the object
      *
@@ -64,13 +68,38 @@ class Slcan extends EventEmitter {
      *
      * @param pkt The data packet to send out
      */
-    public send(pkt: Packet): boolean {
+    public send(pkt: Packet): Promise<boolean> {
         if (this._open) {
-            const d = new Data(pkt);
-            this._write(d.toString());
-            return true;
+            const index = 'd' + this._pktCounter++;
+            return Promise.race([
+                new Promise<boolean>((resolve) => {
+                    const d = new Data(pkt);
+                    this._replies[index] = (reply) => {
+                        if (reply.error) {
+                            resolve(false);
+                            delete this._replies[index];
+                            return true;
+                        } else {
+                            const prefix = (this._autopoll) ? "z" : "";
+                            if (reply.prefix === prefix) {
+                                resolve(true)
+                                delete this._replies[index];
+                                return true;
+                            }
+                        }
+                        return false;
+                    };
+                    this._write(d.toString());
+                }),
+                new Promise<boolean>((resolve) => {
+                    setTimeout(() => {
+                        resolve(false),
+                        delete this._replies[index];
+                    }, this.timeout);
+                }),
+            ]);
         }
-        return false;
+        return Promise.resolve(false);
     }
 
     /**
@@ -173,6 +202,7 @@ class Slcan extends EventEmitter {
             data: Buffer.alloc(0),
         };
     }
+
     /**
      * Send out stuff
      *

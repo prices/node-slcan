@@ -50,20 +50,22 @@ describe(`Slcan`, () => {
                                 data.toString(),
                                 expect,
                             );
+                        } catch(e) {
+                        }
+                    });    
+                    // This sends out the data when the port is ready
+                    s.send(p.pkt).then((ret) => {
+                        try {
+                            assert.strictEqual(
+                                ret,
+                                true,
+                            );
                             done();
                         } catch(e) {
                             done();
                         }
-                    });    
-                    // This sends out the data when the port is ready
-                    const ret = s.send(p.pkt);
-                    try {
-                        assert.strictEqual(
-                            ret,
-                            true,
-                        );
-                    } catch(e) {
-                    }
+                    });
+                    port.write("z" + Parser.delimiter);
                 });
                 port.write(Parser.delimiter);
             });
@@ -78,16 +80,17 @@ describe(`Slcan`, () => {
             const s = new Slcan(port, false);
             s.on('ready', () => {
                 // This sends out the data when the port is ready
-                const ret = s.send(pkt);
-                try {
-                    assert.strictEqual(
-                        ret,
-                        false,
-                    );
-                    done();
-                } catch(e) {
-                    done();
-                }
+                s.send(pkt).then((ret) => {
+                    try {
+                        assert.strictEqual(
+                            ret,
+                            false,
+                        );
+                        done();
+                    } catch(e) {
+                        done();
+                    }
+                });
             });
         });
         it("sends a standard data packet autoopen w/open called", (done) => {
@@ -110,20 +113,21 @@ describe(`Slcan`, () => {
                             data.toString(),
                             expect,
                         );
-                        done();
                     } catch(e) {
-                        done();
                     }
                 });    
                 // This sends out the data when the port is ready
-                const ret = s.send(pkt);
-                try {
-                    assert.strictEqual(
-                        ret,
-                        true,
-                    );
-                } catch(e) {
-                }
+                s.send(pkt).then((ret) => {
+                    try {
+                        assert.strictEqual(
+                            ret,
+                            true,
+                        );
+                    } catch(e) {
+                    }
+                    done();
+                });
+                port.write("z" + Parser.delimiter);
             });
             port.write(Parser.delimiter);
         });
@@ -143,21 +147,89 @@ describe(`Slcan`, () => {
                             data.toString(),
                             expect,
                         );
-                        done();
                     } catch(e) {
-                        done();
                     }
                 });    
                 // This sends out the data when the port is ready
-                const ret = s.send(pkt);
-                try {
-                    assert.strictEqual(
-                        ret,
-                        true,
-                    );
-                } catch(e) {
-                }
+                s.send(pkt).then((ret) => {
+                    try {
+                        assert.strictEqual(
+                            ret,
+                            true,
+                        );
+                    } catch(e) {
+                    }
+                    done();
+                });
+                port.write("z" + Parser.delimiter);
             });
+            port.write(Parser.delimiter);
+        });
+        it("deals with a bad reply", (done) => {
+            const pkt = {
+                id: 5,
+                data: Buffer.from('01020304050607', 'hex'),
+            }
+            const expect = (new Data(pkt)).toString() + Parser.delimiter;
+            const port = new SerialPort(portname);
+            const s = new Slcan(port);
+            s.on('open', () => {
+                port.flush();
+                port.on('data', (data: Buffer) => {
+                    try {
+                        assert.strictEqual(
+                            data.toString(),
+                            expect,
+                        );
+                    } catch(e) {
+                    }
+                });    
+                // This sends out the data when the port is ready
+                s.send(pkt).then((ret) => {
+                    try {
+                        assert.strictEqual(
+                            ret,
+                            true,
+                        );
+                    } catch(e) {
+                    }
+                    done();
+                });
+                port.write(Parser.errorDelimiter);
+            });
+        });
+        it("deals with no reply", (done) => {
+            const pkt = {
+                id: 5,
+                data: Buffer.from('01020304050607', 'hex'),
+            }
+            const expect = (new Data(pkt)).toString() + Parser.delimiter;
+            const port = new SerialPort(portname);
+            const s = new Slcan(port);
+            s.on('open', () => {
+                port.flush();
+                port.on('data', (data: Buffer) => {
+                    try {
+                        assert.strictEqual(
+                            data.toString(),
+                            expect,
+                        );
+                    } catch(e) {
+                    }
+                });    
+                // This sends out the data when the port is ready
+                s.send(pkt).then((ret) => {
+                    try {
+                        assert.strictEqual(
+                            ret,
+                            true,
+                        );
+                    } catch(e) {
+                    }
+                    done();
+                });
+            });
+            port.write(Parser.delimiter);
         });
     });
     describe(`sending open`, () => {
@@ -171,10 +243,9 @@ describe(`Slcan`, () => {
                             v,
                             true
                         );
-                        done();
                     } catch(e) {
-                        done();
                     }
+                    done();
                 });
                 port.flush();
                 port.write(Parser.delimiter);
@@ -190,10 +261,9 @@ describe(`Slcan`, () => {
                             v,
                             false
                         );
-                        done();
                     } catch(e) {
-                        done();
                     }
+                    done();
                 });
                 port.flush();
                 port.write(Parser.errorDelimiter);
@@ -209,10 +279,9 @@ describe(`Slcan`, () => {
                             v,
                             true
                         );
-                        done();
                     } catch(e) {
-                        done();
                     }
+                    done();
                 });
                 port.flush();
                 port.write("F12" + Parser.delimiter + Parser.delimiter);
@@ -228,10 +297,9 @@ describe(`Slcan`, () => {
                             v,
                             false
                         );
-                        done();
                     } catch(e) {
-                        done();
                     }
+                    done();
                 });
                 port.flush();
             });
@@ -248,10 +316,9 @@ describe(`Slcan`, () => {
                             v,
                             true,
                         );
-                        done();
                     } catch(e) {
-                        done();
                     }
+                    done();
                 });
                 port.flush();
                 port.write(Parser.delimiter);
@@ -268,10 +335,9 @@ describe(`Slcan`, () => {
                             false
                         );
                         port.close();
-                        done();
                     } catch(e) {
-                        done();
                     }
+                    done();
                 });
                 port.flush();
                 port.write(Parser.errorDelimiter);
@@ -288,10 +354,9 @@ describe(`Slcan`, () => {
                             true
                         );
                         port.close();
-                        done();
                     } catch(e) {
-                        done();
                     }
+                    done();
                 });
                 port.flush();
                 port.write("F12" + Parser.delimiter + Parser.delimiter);
@@ -307,10 +372,9 @@ describe(`Slcan`, () => {
                             v,
                             false
                         );
-                        done();
                     } catch(e) {
-                        done();
                     }
+                    done();
                 });
                 port.flush();
             });
@@ -327,10 +391,9 @@ describe(`Slcan`, () => {
                             v,
                             true
                         );
-                        done();
                     } catch(e) {
-                        done();
                     }
+                    done();
                 });
                 port.flush();
                 port.write(Parser.delimiter);
@@ -346,10 +409,9 @@ describe(`Slcan`, () => {
                             v,
                             false
                         );
-                        done();
                     } catch(e) {
-                        done();
                     }
+                    done();
                 });
                 port.flush();
                 port.write(Parser.errorDelimiter);
@@ -365,10 +427,9 @@ describe(`Slcan`, () => {
                             v,
                             true
                         );
-                        done();
                     } catch(e) {
-                        done();
                     }
+                    done();
                 });
                 port.flush();
                 port.write("F12" + Parser.delimiter + Parser.delimiter);
@@ -384,10 +445,9 @@ describe(`Slcan`, () => {
                             v,
                             false
                         );
-                        done();
                     } catch(e) {
-                        done();
                     }
+                    done();
                 });
                 port.flush();
             });
