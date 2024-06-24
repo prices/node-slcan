@@ -22,9 +22,9 @@ https://serialport.io/docs/
 
 ~~~~~ts
 import Slcan from "slcan";
-import SerialPort from "serialport";
+import { SerialPort } from "serialport";
 
-const can = new Slcan(new SerialPort("/dev/ttyUSB0"));
+const can = new Slcan(new SerialPort({path: "/dev/ttyUSB0", baudRate: 115200}));
 
 can.on('data', (data) => {
     console.log(data);
