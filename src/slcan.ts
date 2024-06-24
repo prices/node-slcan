@@ -13,7 +13,7 @@
  *
  */
 
-import { SerialPort } from 'serialport';
+import { SerialPortStream } from '@serialport/stream';
 import { Parser } from './parser';
 const delimiter = require('@serialport/parser-delimiter')
 import * as stream from 'stream';
@@ -27,7 +27,7 @@ import { EventEmitter } from 'events';
  */
 class Slcan extends EventEmitter {
     /** The serial port to use. */
-    private readonly _port: SerialPort;
+    private readonly _port: SerialPortStream;
     /** The parser we are using. */
     private readonly _parser: stream.Transform;
     /** The waiting replies */
@@ -45,7 +45,7 @@ class Slcan extends EventEmitter {
      *
      * @param port The serial port to use
      */
-    constructor(port: SerialPort, autoopen = true) {
+    constructor(port: SerialPortStream, autoopen = true) {
         super();
         this._port = port;
         this._open = autoopen;

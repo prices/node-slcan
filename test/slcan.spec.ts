@@ -3,14 +3,14 @@ import * as assert  from "assert";
 import Slcan from "../src/slcan";
 import { Data } from "../src/data";
 import { Parser } from "../src/parser";
-import SerialPort from "serialport";
-const MockBinding = require('@serialport/binding-mock')
+import { SerialPortStream } from "@serialport/stream";
+import { MockBinding } from '@serialport/binding-mock';
 
 describe(`Slcan`, () => {
     const portname = '/dev/s';
+    const baudRate = 9600;
     beforeEach(() => {
         MockBinding.createPort(portname, { echo: true, record: true });
-        SerialPort.Binding = MockBinding;
     });
     afterEach(() => {
         MockBinding.reset();
@@ -36,7 +36,7 @@ describe(`Slcan`, () => {
         for (const p of pkts) {
             it(`sends a ${p.name}`, (done) => {
                 const expect = (new Data(p.pkt)).toString() + Parser.delimiter;
-                const port = new SerialPort(portname);
+                const port = new SerialPortStream({binding: MockBinding, path: portname, baudRate});
                 const s = new Slcan(port, false);
                 s.on('ready', () => {
                     // This sends out the data when the port is ready
@@ -76,7 +76,7 @@ describe(`Slcan`, () => {
                 data: Buffer.from('01020304050607', 'hex'),
             }
             const expect = (new Data(pkt)).toString() + Parser.delimiter;
-            const port = new SerialPort(portname);
+            const port = new SerialPortStream({binding: MockBinding, path: portname, baudRate});
             const s = new Slcan(port, false);
             s.on('ready', () => {
                 // This sends out the data when the port is ready
@@ -99,7 +99,7 @@ describe(`Slcan`, () => {
                 data: Buffer.from('01020304050607', 'hex'),
             }
             const expect = (new Data(pkt)).toString() + Parser.delimiter;
-            const port = new SerialPort(portname);
+            const port = new SerialPortStream({binding: MockBinding, path: portname, baudRate});
             const s = new Slcan(port, true);
             s.on('ready', () => {
                 // This sends out the data when the port is ready
@@ -137,7 +137,7 @@ describe(`Slcan`, () => {
                 data: Buffer.from('01020304050607', 'hex'),
             }
             const expect = (new Data(pkt)).toString() + Parser.delimiter;
-            const port = new SerialPort(portname);
+            const port = new SerialPortStream({binding: MockBinding, path: portname, baudRate});
             const s = new Slcan(port);
             s.on('open', () => {
                 port.flush();
@@ -171,7 +171,7 @@ describe(`Slcan`, () => {
                 data: Buffer.from('01020304050607', 'hex'),
             }
             const expect = (new Data(pkt)).toString() + Parser.delimiter;
-            const port = new SerialPort(portname);
+            const port = new SerialPortStream({binding: MockBinding, path: portname, baudRate});
             const s = new Slcan(port);
             s.on('open', () => {
                 port.flush();
@@ -204,7 +204,7 @@ describe(`Slcan`, () => {
                 data: Buffer.from('01020304050607', 'hex'),
             }
             const expect = (new Data(pkt)).toString() + Parser.delimiter;
-            const port = new SerialPort(portname);
+            const port = new SerialPortStream({binding: MockBinding, path: portname, baudRate});
             const s = new Slcan(port);
             s.on('open', () => {
                 port.flush();
@@ -234,7 +234,7 @@ describe(`Slcan`, () => {
     });
     describe(`sending open`, () => {
         it("deals with a good reply", (done) => {
-            const port = new SerialPort(portname);
+            const port = new SerialPortStream({binding: MockBinding, path: portname, baudRate});
             const s = new Slcan(port, false);
             s.on('ready', () => {
                 s.open().then((v) => {
@@ -252,7 +252,7 @@ describe(`Slcan`, () => {
             });
         });
         it("deals with an error reply", (done) => {
-            const port = new SerialPort(portname);
+            const port = new SerialPortStream({binding: MockBinding, path: portname, baudRate});
             const s = new Slcan(port, false);
             s.on('ready', () => {
                 s.open().then((v) => {
@@ -270,7 +270,7 @@ describe(`Slcan`, () => {
             });
         });
         it("deals with a different reply first", (done) => {
-            const port = new SerialPort(portname);
+            const port = new SerialPortStream({binding: MockBinding, path: portname, baudRate});
             const s = new Slcan(port, false);
             s.on('ready', () => {
                 s.open().then((v) => {
@@ -288,7 +288,7 @@ describe(`Slcan`, () => {
             });
         });
         it("deals with no reply", (done) => {
-            const port = new SerialPort(portname);
+            const port = new SerialPortStream({binding: MockBinding, path: portname, baudRate});
             const s = new Slcan(port, false);
             s.on('ready', () => {
                 s.open().then((v) => {
@@ -307,7 +307,7 @@ describe(`Slcan`, () => {
     });
     describe(`sending close`, () => {
         it("deals with a good reply", (done) => {
-            const port = new SerialPort(portname);
+            const port = new SerialPortStream({binding: MockBinding, path: portname, baudRate});
             const s = new Slcan(port, false);
             s.on('ready', () => {
                 s.close().then((v) => {
@@ -325,7 +325,7 @@ describe(`Slcan`, () => {
             });
         });
         it("deals with an error reply", (done) => {
-            const port = new SerialPort(portname);
+            const port = new SerialPortStream({binding: MockBinding, path: portname, baudRate});
             const s = new Slcan(port, false);
             s.on('ready', () => {
                 s.close().then((v) => {
@@ -344,7 +344,7 @@ describe(`Slcan`, () => {
             });
         });
         it("deals with a different reply first", (done) => {
-            const port = new SerialPort(portname);
+            const port = new SerialPortStream({binding: MockBinding, path: portname, baudRate});
             const s = new Slcan(port, false);
             s.on('ready', () => {
                 s.close().then((v) => {
@@ -363,7 +363,7 @@ describe(`Slcan`, () => {
             });
         });
         it("deals with no reply", (done) => {
-            const port = new SerialPort(portname);
+            const port = new SerialPortStream({binding: MockBinding, path: portname, baudRate});
             const s = new Slcan(port, false);
             s.on('ready', () => {
                 s.close().then((v) => {
@@ -382,7 +382,7 @@ describe(`Slcan`, () => {
     });
     describe(`sending listen`, () => {
         it("deals with a good reply", (done) => {
-            const port = new SerialPort(portname);
+            const port = new SerialPortStream({binding: MockBinding, path: portname, baudRate});
             const s = new Slcan(port,false);
             s.on('ready', () => {
                 s.listen().then((v) => {
@@ -400,7 +400,7 @@ describe(`Slcan`, () => {
             });
         });
         it("deals with an error reply", (done) => {
-            const port = new SerialPort(portname);
+            const port = new SerialPortStream({binding: MockBinding, path: portname, baudRate});
             const s = new Slcan(port, false);
             s.on('ready', () => {
                 s.listen().then((v) => {
@@ -418,7 +418,7 @@ describe(`Slcan`, () => {
             });
         });
         it("deals with a different reply first", (done) => {
-            const port = new SerialPort(portname);
+            const port = new SerialPortStream({binding: MockBinding, path: portname, baudRate});
             const s = new Slcan(port, false);
             s.on('ready', () => {
                 s.listen().then((v) => {
@@ -436,7 +436,7 @@ describe(`Slcan`, () => {
             });
         });
         it("deals with no reply", (done) => {
-            const port = new SerialPort(portname);
+            const port = new SerialPortStream({binding: MockBinding, path: portname, baudRate});
             const s = new Slcan(port, false);
             s.on('ready', () => {
                 s.listen().then((v) => {
