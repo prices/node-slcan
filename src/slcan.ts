@@ -13,7 +13,7 @@
  *
  */
 
-import SerialPort = require('serialport');
+import { SerialPort } from 'serialport';
 import { Parser } from './parser';
 const delimiter = require('@serialport/parser-delimiter')
 import * as stream from 'stream';
